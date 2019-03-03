@@ -15,7 +15,7 @@ struct Particle
 class ParticleTypes
 {
 public:
-	ParticleTypes() = default;
+	ParticleTypes();
 	void resize(std::size_t size);
 	size_t size() const { return m_typeCount; }
 	const sf::Color& color(std::size_t i) const { return m_color[i]; }

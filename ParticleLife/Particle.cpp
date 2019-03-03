@@ -1,5 +1,10 @@
 #include "Particle.h"
 
+ParticleTypes::ParticleTypes()
+{
+	m_gen.seed(m_rd());
+}
+
 void ParticleTypes::resize(std::size_t size)
 {
 	m_color.resize(size);
