@@ -4,8 +4,8 @@
 
 int main()
 {
-	const unsigned int width = 512;
-	const unsigned int height = 512;
+	const unsigned int width = 500;
+	const unsigned int height = 500;
 	sf::RenderWindow window(sf::VideoMode(width, height), "Particle Life");
 	window.setFramerateLimit(60);
 

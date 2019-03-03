@@ -7,6 +7,8 @@ Environment::Environment(unsigned int width, unsigned int height)
 {
 	m_width = static_cast<float>(width);
 	m_height = static_cast<float>(height);
+	m_boundWidth = m_width;
+	m_boundHeight = m_height;
 	m_gen.seed(m_rd());
 	m_bndColTy = BoundaryCollisionType::EMPTY;
 }
@@ -14,6 +16,7 @@ Environment::Environment(unsigned int width, unsigned int height)
 void Environment::update()
 {
 	const float r = static_cast<float>(RADIUS);
+
 	for (unsigned int i = 0; i < m_particleCount; i++)
 	{
 		Particle& p = m_particles[i];
@@ -23,20 +26,19 @@ void Environment::update()
 		switch (m_bndColTy)
 		{
 		case BoundaryCollisionType::EMPTY:
+			// Boundaries are ignored
 			break;
 		case BoundaryCollisionType::SOLID:
-			//TODO : Make use of the radius and bounce on the interior of the boundaries
-			if (p.x < 0.0f)		{	p.x = 0.0f;		p.vx *= -1.0f; }
-			if (p.y < 0.0f)		{	p.y = 0.0f;		p.vy *= -1.0f; }
-			if (p.x > m_width)	{	p.x = m_width;	p.vx *= -1.0f; }
-			if (p.y > m_height) {	p.y = m_height; p.vy *= -1.0f; }
+			if (p.x < r)		     { p.x = r;				p.vx *= -1.0f; }
+			if (p.y < r)		     { p.y = r;				p.vy *= -1.0f; }
+			if (p.x > m_boundWidth)	 { p.x = m_boundWidth;	p.vx *= -1.0f; }
+			if (p.y > m_boundHeight) { p.y = m_boundHeight; p.vy *= -1.0f; }
 			break;
 		case BoundaryCollisionType::WRAP:
-			//TODO : Make use of the radius and wrap when the particle is out of the boundaries
-			if (p.x < 0.0f)		{ p.x = m_width;  }
-			if (p.y < 0.0f)		{ p.y = m_height; }
-			if (p.x > m_width)	{ p.x = 0.0f;	  }
-			if (p.y > m_height) { p.y = 0.0f;	  }
+			if (p.x < -r)		     { p.x =  m_boundWidth;	 }
+			if (p.y < -r)		     { p.y =  m_boundHeight; }
+			if (p.x > m_boundWidth)	 { p.x = -r;			 }
+			if (p.y > m_boundHeight) { p.y = -r;			 }
 			break;
 		}
 	}
@@ -45,7 +47,7 @@ void Environment::update()
 void Environment::draw(sf::RenderWindow * window)
 {
 	sf::CircleShape shape(static_cast<float>(RADIUS), 11);
-	shape.setOrigin(static_cast<float>(RADIUS) / 2.0f, static_cast<float>(RADIUS) / 2.0f);
+	shape.setOrigin(static_cast<float>(RADIUS), static_cast<float>(RADIUS));
 	shape.setOutlineColor(sf::Color::Transparent);
 
 	for (unsigned int i = 0; i < m_particleCount; i++)
@@ -60,10 +62,9 @@ void Environment::draw(sf::RenderWindow * window)
 void Environment::createRandomParticles(std::size_t particleCount, float velMean, float velStd)
 {
 	m_particleCount = particleCount;
-	//m_particles.resize(particleCount);
 	
 	int maxColorIndex = static_cast<int>(m_types.size()) - 1;
-	assert(maxColorIndex > -1); // If you trigger the assertion evaluation make sur you created types before creating particles
+	assert(maxColorIndex > -1); // If you trigger the assertion evaluation make sure you created types before creating particles
 	std::uniform_int_distribution<unsigned int> randCol(0, static_cast<unsigned int>(maxColorIndex));
 
 	std::uniform_real_distribution<float> randUniPosW(0.0f, static_cast<float>(m_width));
@@ -85,4 +86,25 @@ void Environment::createRandomTypes(std::size_t typeCount)
 void Environment::setBoundaryCollisionType(BoundaryCollisionType bndColTy)
 {
 	m_bndColTy = bndColTy;
+
+	switch (bndColTy)
+	{
+	case BoundaryCollisionType::EMPTY:
+		// Bounds are the same size as the environment size since we ignore them anyway
+		m_boundWidth =  m_width;
+		m_boundHeight = m_height;
+		break;
+	case BoundaryCollisionType::SOLID:
+		// Bounds are the environment size minus the balls radius to make sure the balls bounce while
+		// they are still onscreen
+		m_boundWidth =  m_width  - static_cast<float>(RADIUS);
+		m_boundHeight = m_height - static_cast<float>(RADIUS);
+		break;
+	case BoundaryCollisionType::WRAP:
+		// Bounds are the environment size plus the balls radius to make sure the wrapping happens
+		// when the balls are offscreen
+		m_boundWidth =  m_width  + static_cast<float>(RADIUS);
+		m_boundHeight = m_height + static_cast<float>(RADIUS);
+		break;
+	}
 }

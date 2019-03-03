@@ -23,7 +23,7 @@ public:
 	void setBoundaryCollisionType(BoundaryCollisionType bndColTy);
 private:
 	BoundaryCollisionType m_bndColTy;
-	float m_width, m_height;
+	float m_width, m_height, m_boundWidth, m_boundHeight;
 	std::size_t m_particleCount;
 	std::vector<Particle> m_particles;
 	ParticleTypes m_types;
