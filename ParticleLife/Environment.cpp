@@ -29,16 +29,16 @@ void Environment::update()
 			// Boundaries are ignored
 			break;
 		case BoundaryCollisionType::SOLID:
-			if (p.x < r)		     { p.x = r;				p.vx *= -1.0f; }
-			if (p.y < r)		     { p.y = r;				p.vy *= -1.0f; }
-			if (p.x > m_boundWidth)	 { p.x = m_boundWidth;	p.vx *= -1.0f; }
+			if (p.x < r)             { p.x = r;             p.vx *= -1.0f; }
+			if (p.y < r)             { p.y = r;             p.vy *= -1.0f; }
+			if (p.x > m_boundWidth)  { p.x = m_boundWidth;  p.vx *= -1.0f; }
 			if (p.y > m_boundHeight) { p.y = m_boundHeight; p.vy *= -1.0f; }
 			break;
 		case BoundaryCollisionType::WRAP:
-			if (p.x < -r)		     { p.x =  m_boundWidth;	 }
-			if (p.y < -r)		     { p.y =  m_boundHeight; }
-			if (p.x > m_boundWidth)	 { p.x = -r;			 }
-			if (p.y > m_boundHeight) { p.y = -r;			 }
+			if (p.x < -r)            { p.x =  m_boundWidth;	 }
+			if (p.y < -r)            { p.y =  m_boundHeight; }
+			if (p.x > m_boundWidth)  { p.x = -r;             }
+			if (p.y > m_boundHeight) { p.y = -r;             }
 			break;
 		}
 	}
