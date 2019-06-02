@@ -2,6 +2,8 @@
 #include <cassert>
 
 #define RADIUS 5
+#define DELTA_T 0.5f
+#define DELTA_T_FRAME 0.5f
 
 Environment::Environment(unsigned int width, unsigned int height)
 {
@@ -11,37 +13,85 @@ Environment::Environment(unsigned int width, unsigned int height)
 	m_boundHeight = m_height;
 	m_gen.seed(m_rd());
 	m_bndColTy = BoundaryCollisionType::EMPTY;
+	m_drawDebug = false;
 }
 
 void Environment::update()
 {
 	const float r = static_cast<float>(RADIUS);
 
-	for (unsigned int i = 0; i < m_particleCount; i++)
+	float total_vx = 0.0f, total_vy = 0.0f;
+	
+	float t = 0.0f;
+	while (t < DELTA_T_FRAME)
 	{
-		Particle& p = m_particles[i];
-		p.x += p.vx;
-		p.y += p.vy;
-
-		switch (m_bndColTy)
+		for (unsigned int i = 0; i < m_particleCount; i++)
 		{
-		case BoundaryCollisionType::EMPTY:
-			// Boundaries are ignored
-			break;
-		case BoundaryCollisionType::SOLID:
-			if (p.x < r)             { p.x = r;             p.vx *= -1.0f; }
-			if (p.y < r)             { p.y = r;             p.vy *= -1.0f; }
-			if (p.x > m_boundWidth)  { p.x = m_boundWidth;  p.vx *= -1.0f; }
-			if (p.y > m_boundHeight) { p.y = m_boundHeight; p.vy *= -1.0f; }
-			break;
-		case BoundaryCollisionType::WRAP:
-			if (p.x < -r)            { p.x =  m_boundWidth;	 }
-			if (p.y < -r)            { p.y =  m_boundHeight; }
-			if (p.x > m_boundWidth)  { p.x = -r;             }
-			if (p.y > m_boundHeight) { p.y = -r;             }
-			break;
+			Particle& p = m_particles[i];
+
+			//TODO : Remove this simple gravity test to the actual genome based acceleration computation
+			//TODO : Find a more stable Integrator
+			unsigned int neighboorCount = m_getNeighbours(p, 1000.0f);
+			const float fCoef = 1.0f;
+			float accX = 0.0f;
+			float accY = 0.0f;
+			if (neighboorCount > 0)
+				for (unsigned int i = 0; i < neighboorCount; i++)
+				{
+					const Particle& q = *m_neighboorPtrBuffer[i].first;
+					float dx = q.x - p.x;
+					float dy = q.y - p.y;
+					float invMag = 1.0f / std::powf(m_neighboorPtrBuffer[i].second, 0.5f); // m_neighboorPtrBuffer[i].second -> Distance Squared
+					float force = fCoef / std::powf(m_neighboorPtrBuffer[i].second, 0.5f);
+
+					accX += force * (dx * invMag);
+					accY += force * (dy * invMag);
+
+					if (accX > 2.0f)
+						volatile int a = 0;
+					if (accY > 2.0f)
+						volatile int b = 0;
+				}
+			p.vx += accX * DELTA_T;
+			p.vy += accY * DELTA_T;
 		}
+
+		for (unsigned int i = 0; i < m_particleCount; i++)
+		{
+			Particle& p = m_particles[i];
+		
+			p.x += p.vx * DELTA_T;
+			p.y += p.vy * DELTA_T;
+
+			total_vx += p.vx;
+			total_vy += p.vy;
+
+			switch (m_bndColTy)
+			{
+			case BoundaryCollisionType::EMPTY:
+				// Boundaries are ignored
+				break;
+			case BoundaryCollisionType::SOLID:
+				// Bounces of the walls
+				if (p.x < r) { p.x = r;             p.vx *= -1.0f; }
+				if (p.y < r) { p.y = r;             p.vy *= -1.0f; }
+				if (p.x > m_boundWidth) { p.x = m_boundWidth;  p.vx *= -1.0f; }
+				if (p.y > m_boundHeight) { p.y = m_boundHeight; p.vy *= -1.0f; }
+				break;
+			case BoundaryCollisionType::WRAP:
+				// Wrap around the opposite edge
+				if (p.x < -r) { p.x = m_boundWidth; }
+				if (p.y < -r) { p.y = m_boundHeight; }
+				if (p.x > m_boundWidth) { p.x = -r; }
+				if (p.y > m_boundHeight) { p.y = -r; }
+				break;
+			}
+		}
+		t += DELTA_T;
 	}
+#ifdef DEBUG_UPDATE
+	printf("total vx: %f.5\tvy: %f.5\n", total_vx, total_vy);
+#endif // DEBUG_UPDATE
 }
 
 void Environment::draw(sf::RenderWindow * window)
@@ -49,22 +99,43 @@ void Environment::draw(sf::RenderWindow * window)
 	sf::CircleShape shape(static_cast<float>(RADIUS), 11);
 	shape.setOrigin(static_cast<float>(RADIUS), static_cast<float>(RADIUS));
 	shape.setOutlineColor(sf::Color::Transparent);
+	shape.setOutlineThickness(1.0f);
 
 	for (unsigned int i = 0; i < m_particleCount; i++)
 	{
 		Particle& p = m_particles[i];
 		shape.setPosition(p.x, p.y);
 		shape.setFillColor(m_types.color(p.type));
+		shape.setOrigin(static_cast<float>(RADIUS), static_cast<float>(RADIUS));
 		window->draw(shape);
+
+		if (m_drawDebug)
+		{
+			shape.setFillColor(sf::Color::Transparent);
+			// Min radius drawing
+			shape.setOutlineColor(sf::Color::Yellow);
+			float radius = m_types.minRadius(p.type);
+			shape.setRadius(radius);
+			shape.setOrigin(radius, radius);
+			window->draw(shape);
+			shape.setOutlineColor(sf::Color::Transparent);
+			shape.setRadius(static_cast<float>(RADIUS));
+		}
 	}
 }
 
 void Environment::createRandomParticles(std::size_t particleCount, float velMean, float velStd)
 {
 	m_particleCount = particleCount;
+
+	m_neighboorPtrBuffer.resize(particleCount, std::make_pair(nullptr, NAN)); // Resize the pointer buffer used for the nearest neighbour query
 	
 	int maxColorIndex = static_cast<int>(m_types.size()) - 1;
+
+#ifdef DEBUG
 	assert(maxColorIndex > -1); // If you trigger the assertion evaluation make sure you created types before creating particles
+#endif // DEBUG
+
 	std::uniform_int_distribution<unsigned int> randCol(0, static_cast<unsigned int>(maxColorIndex));
 
 	std::uniform_real_distribution<float> randUniPosW(0.0f, static_cast<float>(m_width));
@@ -78,7 +149,7 @@ void Environment::createRandomParticles(std::size_t particleCount, float velMean
 	}
 }
 
-void Environment::createRandomTypes(std::size_t typeCount)
+void Environment::addRandomTypes(std::size_t typeCount)
 {
 	m_types.addRandomTypes(typeCount);
 }
@@ -107,4 +178,39 @@ void Environment::setBoundaryCollisionType(BoundaryCollisionType bndColTy)
 		m_boundHeight = m_height + static_cast<float>(RADIUS);
 		break;
 	}
+}
+
+void Environment::setDebugDrawing(bool enabled)
+{
+	m_drawDebug = enabled;
+}
+
+unsigned int Environment::m_getNeighbours(const Particle& particle, float searchRadius)
+{
+	//TODO : Replace with a quad-tree or another space partitioning data structure
+
+	unsigned int neighboorCount = 0; // serves as index to the next slot in the pointer buffer if we found a neighboor and also as return value
+	const float origin_x = particle.x;
+	const float origin_y = particle.y;
+	const float radSqr = searchRadius * searchRadius;
+
+	for (unsigned int i = 0; i < m_particleCount; i++)
+	{
+		const Particle& p = m_particles[i]; // doesn't need to be const but it is to avoid accidental modification to the value
+		
+		if (&p == &particle) // Skip itself
+			continue;
+
+		float dx = origin_x - p.x;
+		float dy = origin_y - p.y;
+		float distSqr = (dx * dx) + (dy * dy);
+		if (distSqr < radSqr)
+		{
+			m_neighboorPtrBuffer[neighboorCount].first = const_cast<Particle*>(&p); // Add particle to the list of found neighboors
+			m_neighboorPtrBuffer[neighboorCount].second = distSqr; // Store the squared distance
+			neighboorCount++;
+		}
+	}
+
+	return neighboorCount;
 }

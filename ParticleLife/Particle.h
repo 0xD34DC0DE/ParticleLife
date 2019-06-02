@@ -21,10 +21,17 @@ public:
 	const sf::Color& color(std::size_t i) const { return m_color[i]; }
 
 	void addRandomTypes(std::size_t typeCount);
+
+	float minRadius(std::size_t type);
+	float maxRadius(std::size_t type);
+	float attractForce(std::size_t type);
 private:
 	std::size_t m_typeCount;
 	std::vector<Particle> m_particles;
 	std::vector<sf::Color> m_color;
+	std::vector<float> m_minRad;
+	std::vector<float> m_maxRad;
+	std::vector<float> m_attractForce;
 
 	std::random_device m_rd;
 	std::mt19937 m_gen;

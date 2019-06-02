@@ -4,6 +4,7 @@
 #include <vector>
 #include <random>
 #include <cinttypes>
+#include <tuple>
 
 enum BoundaryCollisionType
 {
@@ -19,16 +20,23 @@ public:
 	void update();
 	void draw(sf::RenderWindow* window);
 	void createRandomParticles(std::size_t particleCount, float velMean, float velStd);
-	void createRandomTypes(std::size_t typeCount);
+	void addRandomTypes(std::size_t typeCount);
 	void setBoundaryCollisionType(BoundaryCollisionType bndColTy);
+	void setDebugDrawing(bool enabled);
 private:
+	
+	bool m_drawDebug;
+	unsigned int m_getNeighbours(const Particle& particle, float searchRadius);
+
 	BoundaryCollisionType m_bndColTy;
 	float m_width, m_height, m_boundWidth, m_boundHeight;
 	std::size_t m_particleCount;
 	std::vector<Particle> m_particles;
+	std::vector<std::pair<Particle*, float>> m_neighboorPtrBuffer;
 	ParticleTypes m_types;
 
 	std::random_device m_rd;
 	std::mt19937 m_gen;
+
 
 };

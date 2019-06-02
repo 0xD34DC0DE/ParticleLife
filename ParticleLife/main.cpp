@@ -10,8 +10,12 @@ int main()
 	window.setFramerateLimit(60);
 
 	Environment env(width, height);
-	env.createRandomTypes(3);
-	env.createRandomParticles(10, 0.0f, 1.0f);
+	env.setDebugDrawing(true);
+	// Testing old value preservation by calling with 1 and 2 instead of a single time with 3
+	env.addRandomTypes(2); //TODO : bugs when > 1
+	env.addRandomTypes(2);
+
+	env.createRandomParticles(5, 0.0f, 0.1f);
 	env.setBoundaryCollisionType(SOLID);
 	
 
