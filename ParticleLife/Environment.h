@@ -6,11 +6,18 @@
 #include <cinttypes>
 #include <tuple>
 
-enum BoundaryCollisionType
+enum BoundaryCollisionType : unsigned int
 {
 	EMPTY = 0,
 	SOLID = 1,
 	WRAP =	2,
+};
+
+enum DebugDrawConfig : unsigned int
+{
+	NO_DEBUG_DRAW		= 0x1 << 0,
+	MIN_RADIUS			= 0x1 << 1,
+	INTERACTION_LINE	= 0x1 << 2,
 };
 
 class Environment
@@ -23,9 +30,22 @@ public:
 	void addRandomTypes(std::size_t typeCount);
 	void setBoundaryCollisionType(BoundaryCollisionType bndColTy);
 	void setDebugDrawing(bool enabled);
+	void setDebugFlags(unsigned int flags);
+	void setDebugFlags(unsigned int flags, bool value);
+	void toggleDebugFlag(unsigned int flag);
 private:
+	sf::Color m_randomColor();
+	std::uniform_int_distribution<unsigned int> m_randByte;
+
 	
+	// Debug stuff
+	void m_debugDraw(sf::RenderWindow* window);
+	sf::VertexArray m_debugInteractionLines;
+
 	bool m_drawDebug;
+
+	
+
 	unsigned int m_getNeighbours(const Particle& particle, float searchRadius);
 
 	BoundaryCollisionType m_bndColTy;
@@ -33,7 +53,9 @@ private:
 	std::size_t m_particleCount;
 	std::vector<Particle> m_particles;
 	std::vector<std::pair<Particle*, float>> m_neighboorPtrBuffer;
+	std::size_t m_lastNeighboorScanCount;
 	ParticleTypes m_types;
+	unsigned int m_debugDrawConf;
 
 	std::random_device m_rd;
 	std::mt19937 m_gen;
