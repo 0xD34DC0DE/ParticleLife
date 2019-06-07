@@ -3,11 +3,31 @@
 #include <algorithm> // for std::copy
 
 #define RADIUS 5.0f
+#define DIAMETER RADIUS * 2.0f
 
 ParticleTypes::ParticleTypes()
 {
 	m_gen.seed(m_rd());
 	m_typeCount = 0;
+	m_friction = 0.0f;
+	m_attract_mean = 0.0f;
+	m_attract_std = 0.0f;
+	m_minr_lower = 0.0f;
+	m_minr_upper = 0.0f;
+	m_maxr_lower = 0.0f;
+	m_maxr_upper = 0.0f;
+}
+
+void ParticleTypes::setParams(float attract_mean, float attract_std, float minr_lower, float minr_upper, float maxr_lower, float maxr_upper, float friction)
+{
+	m_friction = friction;
+	m_attract_mean = attract_mean;
+	m_attract_std = attract_std;
+	m_minr_lower = minr_lower;
+	m_minr_upper = minr_upper;
+	m_maxr_lower = maxr_lower;
+	m_maxr_upper = maxr_upper;
+
 }
 
 void ParticleTypes::resize(std::size_t size)
@@ -22,6 +42,9 @@ void ParticleTypes::addRandomTypes(std::size_t typeCount)
 
 	//TODO : setup parametisation for random values (normal distribution)
 	std::uniform_real_distribution<float> randNormalized(0.0f, 1.0f);
+	std::normal_distribution<float>       rand_attr(m_attract_mean, m_attract_std);
+	std::uniform_real_distribution<float> rand_minr(m_minr_lower, m_minr_upper);
+	std::uniform_real_distribution<float> rand_maxr(m_maxr_lower, m_maxr_upper);
 	
 	// If the new current type count is equal to the type count given as an argument,
 	// we know that this is is the first call to this function and don't need to preserve already existing values
@@ -39,16 +62,16 @@ void ParticleTypes::addRandomTypes(std::size_t typeCount)
 			{
 				if (i == j) 
 				{
-					m_attractForce[i * m_typeCount + j] = -randNormalized(m_gen) * 2.0f;
-					m_minRad[i * m_typeCount + j] = RADIUS * 2.0f;
+					m_attractForce[i * m_typeCount + j] = -std::abs(rand_attr(m_gen));
+					m_minRad[i * m_typeCount + j] = DIAMETER;
 				}
 				else
 				{
-					m_attractForce[i * m_typeCount + j] = randNormalized(m_gen) * 2.0f;
-					m_minRad[i * m_typeCount + j] = std::max(randNormalized(m_gen) * 10.0f + 5.0f, RADIUS * 2.0f);
+					m_attractForce[i * m_typeCount + j] = rand_attr(m_gen);
+					m_minRad[i * m_typeCount + j] = std::max(rand_minr(m_gen), DIAMETER);
 				}
 
-				m_maxRad[i * m_typeCount + j] = std::max(randNormalized(m_gen) * 8.0f + 10.0f, m_minRad[i * m_typeCount + j]);
+				m_maxRad[i * m_typeCount + j] = std::max(rand_maxr(m_gen), m_minRad[i * m_typeCount + j]);
 
 				// Radii symmetry
 				m_maxRad[j * m_typeCount + i] = m_maxRad[i * m_typeCount + j];
@@ -78,10 +101,10 @@ void ParticleTypes::addRandomTypes(std::size_t typeCount)
 			{
 				for (int j = 0; j < typeCount; j++)
 				{
-					newAttractForce[i * m_typeCount + oldCount + j] = randNormalized(m_gen) * 2.0f;
-					newMinRad[i * m_typeCount + oldCount + j] = std::max(randNormalized(m_gen) * 10.0f + 5.0f, RADIUS * 2.0f);
+					newAttractForce[i * m_typeCount + oldCount + j] = rand_attr(m_gen);
+					newMinRad[i * m_typeCount + oldCount + j] = std::max(rand_minr(m_gen), DIAMETER);
 
-					newMaxRad[i * m_typeCount + oldCount + j] = std::max(randNormalized(m_gen) * 8.0f + 10.0f, newMinRad[i * m_typeCount + oldCount + j]);
+					newMaxRad[i * m_typeCount + oldCount + j] = std::max(rand_maxr(m_gen), newMinRad[i * m_typeCount + oldCount + j]);
 
 					// Radii symmetry
 					newMaxRad[j * m_typeCount + oldCount + i] = newMaxRad[i * m_typeCount + oldCount + j];
@@ -98,16 +121,16 @@ void ParticleTypes::addRandomTypes(std::size_t typeCount)
 				{
 					if (i == j)
 					{
-						newAttractForce[i * m_typeCount + j] = -randNormalized(m_gen) * 2.0f;
-						newMinRad[i * m_typeCount + j] = RADIUS * 2.0f;
+						newAttractForce[i * m_typeCount + j] = -std::abs(rand_attr(m_gen));
+						newMinRad[i * m_typeCount + j] = DIAMETER;
 					}
 					else
 					{
-						newAttractForce[i * m_typeCount + j] = randNormalized(m_gen) * 2.0f;
-						newMinRad[i * m_typeCount + j] = std::max(randNormalized(m_gen) * 10.0f + 5.0f, RADIUS * 2.0f);
+						newAttractForce[i * m_typeCount + j] = rand_attr(m_gen);
+						newMinRad[i * m_typeCount + j] = std::max(rand_minr(m_gen), DIAMETER);
 					}
 
-					newMaxRad[i * m_typeCount + j] = std::max(randNormalized(m_gen) * 8.0f + 10.0f, newMinRad[i * m_typeCount + j]);
+					newMaxRad[i * m_typeCount + j] = std::max(rand_maxr(m_gen), newMinRad[i * m_typeCount + j]);
 
 					// Radii symmetry
 					newMaxRad[j * m_typeCount + i] = newMaxRad[i * m_typeCount + j];
@@ -128,18 +151,23 @@ void ParticleTypes::addRandomTypes(std::size_t typeCount)
 	}
 }
 
-float ParticleTypes::minRadius(std::size_t type)
+float ParticleTypes::minRadius(std::size_t typeA, std::size_t typeB)
 {
-	return m_minRad[type * m_typeCount];
+	return m_minRad[typeA * m_typeCount + typeB];
 }
 
-float ParticleTypes::maxRadius(std::size_t type)
+float ParticleTypes::maxRadius(std::size_t typeA, std::size_t typeB)
 {
-	return m_maxRad[type * m_typeCount];
+	return m_maxRad[typeA * m_typeCount + typeB];
 }
 
-float ParticleTypes::attractForce(std::size_t type)
+float ParticleTypes::attractForce(std::size_t typeA, std::size_t typeB)
 {
-	return m_attractForce[type * m_typeCount];
+	return m_attractForce[typeA * m_typeCount + typeB];
+}
+
+unsigned int ParticleTypes::getTypeCount() const
+{
+	return m_typeCount;
 }
 

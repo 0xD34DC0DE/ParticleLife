@@ -33,6 +33,9 @@ public:
 	void setDebugFlags(unsigned int flags);
 	void setDebugFlags(unsigned int flags, bool value);
 	void toggleDebugFlag(unsigned int flag);
+	void setNeighboorSearchRadius(float radius);
+	void setNeighboorSearchRadiusModeAuto(bool enabled);
+	void setParams(float attract_mean, float attract_std, float minr_lower, float minr_upper, float maxr_lower, float maxr_upper, float friction, bool flat_force);
 private:
 	sf::Color m_randomColor();
 	std::uniform_int_distribution<unsigned int> m_randByte;
@@ -56,6 +59,16 @@ private:
 	std::size_t m_lastNeighboorScanCount;
 	ParticleTypes m_types;
 	unsigned int m_debugDrawConf;
+	bool m_useFlatForce;
+	float m_friction;
+	float m_attract_mean;
+	float m_attract_std;
+	float m_minr_lower;
+	float m_minr_upper;
+	float m_maxr_lower;
+	float m_maxr_upper;
+	float m_neighboorSearchRadius;
+	bool m_autoSearchNeighboorRadius;
 
 	std::random_device m_rd;
 	std::mt19937 m_gen;

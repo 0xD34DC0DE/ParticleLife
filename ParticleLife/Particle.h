@@ -22,9 +22,11 @@ public:
 
 	void addRandomTypes(std::size_t typeCount);
 
-	float minRadius(std::size_t type);
-	float maxRadius(std::size_t type);
-	float attractForce(std::size_t type);
+	float minRadius(std::size_t typeA, std::size_t typeB);
+	float maxRadius(std::size_t typeA, std::size_t typeB);
+	float attractForce(std::size_t typeA, std::size_t typeB);
+	unsigned int getTypeCount() const;
+	void setParams(float attract_mean, float attract_std, float minr_lower, float minr_upper, float maxr_lower, float maxr_upper, float friction);
 private:
 	std::size_t m_typeCount;
 	std::vector<Particle> m_particles;
@@ -35,4 +37,12 @@ private:
 
 	std::random_device m_rd;
 	std::mt19937 m_gen;
+
+	float m_friction;
+	float m_attract_mean;
+	float m_attract_std;
+	float m_minr_lower;
+	float m_minr_upper;
+	float m_maxr_lower;
+	float m_maxr_upper;
 };
