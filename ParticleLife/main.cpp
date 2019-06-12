@@ -2,6 +2,8 @@
 
 #include "Environment.h"
 
+// Work based on: https://github.com/HackerPoet/Particle-Life/blob/master/Universe.cpp
+
 int main()
 {
 	const unsigned int width = 500;
@@ -10,18 +12,18 @@ int main()
 	window.setFramerateLimit(60);
 
 	Environment env(width, height);
-	env.setDebugDrawing(false);
-	env.setDebugFlags(DebugDrawConfig::INTERACTION_LINE);
+	env.setDebugDrawing(true);
+	env.setDebugFlags(DebugDrawConfig::INTERACTION_LINE | DebugDrawConfig::MIN_RADIUS);
 	env.setParams(0.02f, 0.04f, 0.0f, 30.0f, 30.0f, 100.0f, 0.01f, false);
 
-	// Testing old value preservation by calling with 1 and 2 instead of a single time with 3
-	env.addRandomTypes(9);
+	env.addRandomTypes(4);
 
-	env.setNeighboorSearchRadiusModeAuto(false);
-	env.setNeighboorSearchRadius(250.0f);
+	env.setNeighboorSearchRadiusModeAuto(true);
+	//env.setNeighboorSearchRadius(250.0f);
 
-	env.createRandomParticles(150, 0.0f, 0.1f);
+	env.createRandomParticles(50, 0.0f, 0.1f);
 	env.setBoundaryCollisionType(SOLID);
+	env.setDebugDrawingAlpha(1);
 	
 
 	sf::Event evnt;

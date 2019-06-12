@@ -31,6 +31,7 @@ Environment::Environment(unsigned int width, unsigned int height)
 	m_maxr_upper = 0.0f;
 	m_neighboorSearchRadius = std::sqrt(width * width + height * height);
 	m_autoSearchNeighboorRadius = false;
+	m_debugDrawingAlpha = 255;
 }
 
 sf::Color Environment::m_randomColor()
@@ -72,7 +73,7 @@ void Environment::update()
 					if (m_debugDrawConf & DebugDrawConfig::INTERACTION_LINE) // Collect the interaction lines
 					{
 						sf::Color interactionLineCol = m_types.color(p.type);
-						interactionLineCol.a = 50;
+						interactionLineCol.a = m_debugDrawingAlpha;
 						m_debugInteractionLines.append(sf::Vertex(sf::Vector2f(p.x, p.y), interactionLineCol));
 						m_debugInteractionLines.append(sf::Vertex(sf::Vector2f(q.x, q.y), interactionLineCol));
 					}
@@ -86,7 +87,7 @@ void Environment::update()
 				const float minR = m_types.minRadius(p.type, q.type);
 				const float maxR = m_types.maxRadius(p.type, q.type);
 
-				if (r2 > maxR*maxR || r2 < 0.01f) {
+				if (r2 > (maxR*maxR) || r2 < 0.01f) {
 					continue;
 				}
 
@@ -197,7 +198,7 @@ void Environment::m_debugDraw(sf::RenderWindow * window)
 			{
 				shape.setFillColor(sf::Color::Transparent);
 				// Min radius drawing
-				shape.setOutlineColor(sf::Color::Yellow);
+				shape.setOutlineColor(sf::Color(255,255,0,m_debugDrawingAlpha));
 				float radius = m_types.minRadius(p.type, 0);
 				shape.setRadius(radius);
 				shape.setOrigin(radius, radius);
@@ -292,6 +293,7 @@ void Environment::setBoundaryCollisionType(BoundaryCollisionType bndColTy)
 
 void Environment::setDebugDrawing(bool enabled)
 {
+	m_drawDebug = enabled;
 	m_debugDrawConf &= static_cast<unsigned int>(enabled);
 }
 
@@ -348,6 +350,11 @@ void Environment::setParams(float attract_mean, float attract_std, float minr_lo
 	m_maxr_upper = maxr_upper;
 	m_useFlatForce = flat_force;
 	m_types.setParams(attract_mean, attract_std, minr_lower, minr_upper, maxr_lower, maxr_upper, friction); // Pass the arguments to the particle type class
+}
+
+void Environment::setDebugDrawingAlpha(unsigned char alpha)
+{
+	m_debugDrawingAlpha = alpha;
 }
 
 unsigned int Environment::m_getNeighbours(const Particle& particle, float searchRadius)

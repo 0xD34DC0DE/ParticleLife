@@ -36,6 +36,7 @@ public:
 	void setNeighboorSearchRadius(float radius);
 	void setNeighboorSearchRadiusModeAuto(bool enabled);
 	void setParams(float attract_mean, float attract_std, float minr_lower, float minr_upper, float maxr_lower, float maxr_upper, float friction, bool flat_force);
+	void setDebugDrawingAlpha(unsigned char alpha);
 private:
 	sf::Color m_randomColor();
 	std::uniform_int_distribution<unsigned int> m_randByte;
@@ -69,6 +70,7 @@ private:
 	float m_maxr_upper;
 	float m_neighboorSearchRadius;
 	bool m_autoSearchNeighboorRadius;
+	unsigned char m_debugDrawingAlpha;
 
 	std::random_device m_rd;
 	std::mt19937 m_gen;

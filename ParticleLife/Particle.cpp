@@ -55,7 +55,7 @@ void ParticleTypes::addRandomTypes(std::size_t typeCount)
 		m_maxRad.resize(m_typeCount * m_typeCount);
 		m_attractForce.resize(m_typeCount * m_typeCount);
 
-		//TODO : Pick up from here (Figuring out the correct way to generate the radiuses) https://github.com/HackerPoet/Particle-Life/blob/master/Universe.cpp
+		//TODO : Pick up from here (Figuring out the correct way to generate the radiuses)
 		for (int i = 0; i < m_typeCount; i++)
 		{
 			for (int j = 0; j < m_typeCount; j++)
