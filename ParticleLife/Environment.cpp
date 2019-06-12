@@ -43,9 +43,12 @@ void Environment::update()
 {
 	const float r = static_cast<float>(RADIUS);
 
-	if (m_debugDrawConf & DebugDrawConfig::INTERACTION_LINE)
+	if (m_drawDebug) // Only draw debug when its enabled
 	{
-		m_debugInteractionLines.clear();
+		if (m_debugDrawConf & DebugDrawConfig::INTERACTION_LINE)
+		{
+			m_debugInteractionLines.clear();
+		}
 	}
 
 	for (unsigned int i = 0; i < m_particleCount; i++)
@@ -64,12 +67,15 @@ void Environment::update()
 			{
 				const Particle& q = *m_neighboorPtrBuffer[j].first;
 
-				if (m_debugDrawConf & DebugDrawConfig::INTERACTION_LINE) // Collect the interaction lines
+				if (m_drawDebug) // Only draw debug when its enabled
 				{
-					sf::Color interactionLineCol = m_types.color(p.type);
-					interactionLineCol.a = 50;
-					m_debugInteractionLines.append(sf::Vertex(sf::Vector2f(p.x, p.y), interactionLineCol));
-					m_debugInteractionLines.append(sf::Vertex(sf::Vector2f(q.x, q.y), interactionLineCol));
+					if (m_debugDrawConf & DebugDrawConfig::INTERACTION_LINE) // Collect the interaction lines
+					{
+						sf::Color interactionLineCol = m_types.color(p.type);
+						interactionLineCol.a = 50;
+						m_debugInteractionLines.append(sf::Vertex(sf::Vector2f(p.x, p.y), interactionLineCol));
+						m_debugInteractionLines.append(sf::Vertex(sf::Vector2f(q.x, q.y), interactionLineCol));
+					}
 				}
 
 				float dx = q.x - p.x;
@@ -185,23 +191,28 @@ void Environment::m_debugDraw(sf::RenderWindow * window)
 		shape.setOrigin(static_cast<float>(RADIUS), static_cast<float>(RADIUS));
 		window->draw(shape);
 
-		if (m_debugDrawConf & DebugDrawConfig::MIN_RADIUS)
+		if (m_drawDebug) // Only draw debug when its enabled
 		{
-			shape.setFillColor(sf::Color::Transparent);
-			// Min radius drawing
-			shape.setOutlineColor(sf::Color::Yellow);
-			float radius = m_types.minRadius(p.type, 0);
-			shape.setRadius(radius);
-			shape.setOrigin(radius, radius);
-			window->draw(shape);
-			shape.setOutlineColor(sf::Color::Transparent);
-			shape.setRadius(static_cast<float>(RADIUS));
+			if (m_debugDrawConf & DebugDrawConfig::MIN_RADIUS)
+			{
+				shape.setFillColor(sf::Color::Transparent);
+				// Min radius drawing
+				shape.setOutlineColor(sf::Color::Yellow);
+				float radius = m_types.minRadius(p.type, 0);
+				shape.setRadius(radius);
+				shape.setOrigin(radius, radius);
+				window->draw(shape);
+				shape.setOutlineColor(sf::Color::Transparent);
+				shape.setRadius(static_cast<float>(RADIUS));
+			}
 		}
 	}
-
-	if (m_debugDrawConf & DebugDrawConfig::INTERACTION_LINE)
+	if (m_drawDebug) // Only draw debug when its enabled
 	{
-		window->draw(m_debugInteractionLines);
+		if (m_debugDrawConf & DebugDrawConfig::INTERACTION_LINE)
+		{
+			window->draw(m_debugInteractionLines);
+		}
 	}
 }
 
