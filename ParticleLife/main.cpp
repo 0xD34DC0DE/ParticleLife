@@ -13,10 +13,10 @@ int main()
 
 	Environment env(width, height);
 	env.setDebugDrawing(true);
-	env.setDebugFlags(DebugDrawConfig::INTERACTION_LINE | DebugDrawConfig::MIN_RADIUS);
-	env.setParams(0.02f, 0.04f, 0.0f, 30.0f, 30.0f, 100.0f, 0.01f, false);
+	env.setDebugFlags(DebugDrawConfig::INTERACTION_LINE | DebugDrawConfig::MAX_RADIUS | DebugDrawConfig::MIN_RADIUS);
+	env.setParams(.0f, 0.06f, 0.0f, 20.0f, 10.0f, 50.0f, 0.1f, true);
 
-	env.addRandomTypes(4);
+	env.addRandomTypes(6);
 
 	env.setNeighboorSearchRadiusModeAuto(true);
 	//env.setNeighboorSearchRadius(250.0f);

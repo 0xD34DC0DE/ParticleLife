@@ -18,6 +18,7 @@ enum DebugDrawConfig : unsigned int
 	NO_DEBUG_DRAW		= 0x1 << 0,
 	MIN_RADIUS			= 0x1 << 1,
 	INTERACTION_LINE	= 0x1 << 2,
+	MAX_RADIUS			= 0x1 << 3,
 };
 
 class Environment
@@ -71,6 +72,8 @@ private:
 	float m_neighboorSearchRadius;
 	bool m_autoSearchNeighboorRadius;
 	unsigned char m_debugDrawingAlpha;
+
+	std::vector<std::pair<float, float>> m_debugDrawingRadii;
 
 	std::random_device m_rd;
 	std::mt19937 m_gen;

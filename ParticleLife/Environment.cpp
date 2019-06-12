@@ -199,7 +199,20 @@ void Environment::m_debugDraw(sf::RenderWindow * window)
 				shape.setFillColor(sf::Color::Transparent);
 				// Min radius drawing
 				shape.setOutlineColor(sf::Color(255,255,0,m_debugDrawingAlpha));
-				float radius = m_types.minRadius(p.type, 0);
+				float radius = m_debugDrawingRadii[p.type].first;
+				shape.setRadius(radius);
+				shape.setOrigin(radius, radius);
+				window->draw(shape);
+				shape.setOutlineColor(sf::Color::Transparent);
+				shape.setRadius(static_cast<float>(RADIUS));
+			}
+
+			if (m_debugDrawConf & DebugDrawConfig::MAX_RADIUS)
+			{
+				shape.setFillColor(sf::Color::Transparent);
+				// Min radius drawing
+				shape.setOutlineColor(sf::Color(255, 0, 255, m_debugDrawingAlpha));
+				float radius = m_debugDrawingRadii[p.type].second;
 				shape.setRadius(radius);
 				shape.setOrigin(radius, radius);
 				window->draw(shape);
@@ -263,6 +276,26 @@ void Environment::addRandomTypes(std::size_t typeCount)
 		// if maxR is still 0, defaults to the length of the diagonal of the environment
 		m_neighboorSearchRadius = (maxR != 0.0f) ? maxR : std::sqrt(m_width * m_width + m_height * m_height);
 	}
+
+	m_debugDrawingRadii.clear();
+
+	for (int i = 0; i < m_types.getTypeCount(); i++)
+	{
+		float minR = FLT_MAX;
+		float maxR = 0.0f;
+		for (int j = 0; j < m_types.getTypeCount(); j++)
+		{
+			if (maxR < m_types.maxRadius(i, j))
+				maxR = m_types.maxRadius(i, j);
+			if (minR > m_types.minRadius(i, j))
+				minR = m_types.minRadius(i, j);
+		}
+		// Defaults to 0.0f if minR is still FLT_MAX
+		if (minR == FLT_MAX)
+			minR = 0.0f;
+		m_debugDrawingRadii.emplace_back(std::make_pair(minR, maxR));
+	}
+
 }
 
 void Environment::setBoundaryCollisionType(BoundaryCollisionType bndColTy)
