@@ -12,18 +12,20 @@ int main()
 	window.setFramerateLimit(60);
 
 	Environment env(width, height);
-	env.setDebugDrawing(true);
+	env.setDebugDrawing(false);
 	env.setDebugFlags(DebugDrawConfig::INTERACTION_LINE | DebugDrawConfig::MAX_RADIUS | DebugDrawConfig::MIN_RADIUS);
-	env.setParams(.0f, 0.06f, 0.0f, 20.0f, 10.0f, 50.0f, 0.1f, true);
+	env.setParams(-0.02f, 0.06f, 0.0f, 20.0f, 20.0f, 70.0f, 0.05f, false);
 
 	env.addRandomTypes(6);
 
 	env.setNeighboorSearchRadiusModeAuto(true);
 	//env.setNeighboorSearchRadius(250.0f);
 
-	env.createRandomParticles(50, 0.0f, 0.1f);
+	env.createRandomParticles(150, 0.0f, 0.1f);
 	env.setBoundaryCollisionType(SOLID);
 	env.setDebugDrawingAlpha(1);
+
+	const unsigned int updatePerFrame = 3;
 	
 
 	sf::Event evnt;
@@ -43,7 +45,9 @@ int main()
 
 		window.clear();
 
-		env.update();
+		for(unsigned int i = 0; i < updatePerFrame; i++)
+			env.update();
+
 		env.draw(&window);
 
 		window.display();

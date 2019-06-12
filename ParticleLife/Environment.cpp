@@ -170,9 +170,12 @@ void Environment::draw(sf::RenderWindow * window)
 		shape.setOrigin(static_cast<float>(RADIUS), static_cast<float>(RADIUS));
 		window->draw(shape);
 
-		if (m_debugDrawConf != DebugDrawConfig::NO_DEBUG_DRAW)
+		if (m_drawDebug)
 		{
-			m_debugDraw(window);
+			if (m_debugDrawConf != DebugDrawConfig::NO_DEBUG_DRAW)
+			{
+				m_debugDraw(window);
+			}
 		}
 	}
 }
