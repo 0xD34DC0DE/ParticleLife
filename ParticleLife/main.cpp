@@ -4,6 +4,12 @@
 
 // Work based on: https://github.com/HackerPoet/Particle-Life/blob/master/Universe.cpp
 
+//TODO : Implement a batchDrawing class that renders the circle inside a texture atlas 
+// and use a VertexBuffer to draw the shapes instead of calling ".draw()" for every shape
+
+//TODO : implement more complex interactions: exemple: limit number of interactions per particle type, some interaction are stonger than average so they act like bonds
+// and finally some non-linear attraction formula between certain types
+
 int main()
 {
 	const unsigned int width = 500;
@@ -13,16 +19,16 @@ int main()
 
 	Environment env(width, height);
 	env.setDebugDrawing(false);
-	env.setDebugFlags(DebugDrawConfig::INTERACTION_LINE | DebugDrawConfig::MAX_RADIUS | DebugDrawConfig::MIN_RADIUS);
+	env.setDebugFlags(DebugDrawConfig::INTERACTION_LINE);
 	env.setParams(-0.02f, 0.06f, 0.0f, 20.0f, 20.0f, 70.0f, 0.05f, false);
 
-	env.addRandomTypes(6);
+	env.addRandomTypes(7);
 
 	env.setNeighboorSearchRadiusModeAuto(true);
 	//env.setNeighboorSearchRadius(250.0f);
 
-	env.createRandomParticles(150, 0.0f, 0.1f);
-	env.setBoundaryCollisionType(SOLID);
+	env.createRandomParticles(250, 0.0f, 0.1f);
+	env.setBoundaryCollisionType(WRAP);
 	env.setDebugDrawingAlpha(1);
 
 	const unsigned int updatePerFrame = 3;
