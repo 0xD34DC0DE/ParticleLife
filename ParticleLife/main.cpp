@@ -7,7 +7,7 @@
 //TODO : Implement a batchDrawing class that renders the circle inside a texture atlas 
 // and use a VertexBuffer to draw the shapes instead of calling ".draw()" for every shape
 
-//TODO : implement more complex interactions: exemple: limit number of interactions per particle type, some interaction are stonger than average so they act like bonds
+//TODO : implement more complex interactions: example: limit the number of interactions per particle type, some interaction are stonger than average so they act like bonds
 // and finally some non-linear attraction formula between certain types
 
 int main()
@@ -32,7 +32,6 @@ int main()
 	env.setDebugDrawingAlpha(1);
 
 	const unsigned int updatePerFrame = 3;
-	
 
 	sf::Event evnt;
 	while (window.isOpen())
@@ -50,12 +49,13 @@ int main()
 		}
 
 		window.clear();
-
+		/*
 		for(unsigned int i = 0; i < updatePerFrame; i++)
 			env.update();
 
 		env.draw(&window);
-
+		*/
+		br2d.drawAtlas(&window, 256, 256, 64, 32);
 		window.display();
 	}
 

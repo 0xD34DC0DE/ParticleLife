@@ -9,22 +9,26 @@ TextureRenderer::TextureRenderer()
 sf::Image TextureRenderer::renderToTexture(const sf::CircleShape& circleShape, unsigned int textureSize, sf::Color backgoundColor)
 {
 	sf::CircleShape circleShapeCopy(circleShape);
+	// Middle of the texture (square texture)
+	float pos = (static_cast<float>(textureSize) / 2.0f);
 
+	// Substract the outline thickness so it isn't rendered outside the bounds of the texture
+	float radius = pos - circleShapeCopy.getOutlineThickness();
+	
 	// Set the circle radius to fill all the space available
-	const float sqrt2 = std::sqrtf(2.0f);
-	float r = sqrt2 * textureSize;
-	circleShapeCopy.setRadius(r);
+	circleShapeCopy.setRadius(radius);
 
 	// Center the circle's origin
-	circleShapeCopy.setOrigin(r, r);
+	circleShapeCopy.setOrigin(radius, radius);
 
 	// Set the circle's position to the middle of the render texture
+	circleShapeCopy.setPosition(pos, pos);
 
+	sf::RenderTexture rtBuffer;
+	rtBuffer.create(textureSize, textureSize);
+	rtBuffer.clear(backgoundColor);
 
-	m_renderTextureBuffer.create(textureSize, textureSize);
-	m_renderTextureBuffer.clear(backgoundColor);
+	rtBuffer.draw(circleShapeCopy);
 
-	m_renderTextureBuffer.draw(circleShapeCopy);
-
-	return m_renderTextureBuffer.getTexture().copyToImage();
+	return rtBuffer.getTexture().copyToImage();
 }

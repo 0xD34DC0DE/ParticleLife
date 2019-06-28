@@ -12,13 +12,12 @@ public:
 
 	void draw(sf::RenderTarget* renderTarget);
 
+	void drawAtlas(sf::RenderTarget * renderTarget, float x, float y, float width, float height);
+
 private:
 	sf::VertexBuffer m_vertexBuffer;
 	sf::Texture m_textureAtlas;
 	unsigned int m_textureCount;
 	std::vector<sf::Vertex> m_vertices;
-
-
-
 };
 
