@@ -6,10 +6,13 @@ BatchRenderer2D::BatchRenderer2D()
 {
 	m_vertexBuffer.create(1);
 	m_vertexBuffer.setPrimitiveType(sf::PrimitiveType::Quads);
+	m_vertexBufferNeedsUpdate = true;
+	m_renderState = sf::RenderStates(&m_textureAtlas);
 }
 
 // Returns the ID of the sprite
-unsigned int BatchRenderer2D::add(const sf::CircleShape& circleShape, unsigned int textureSize, sf::Color backgroundColor) 
+// Leave quadSize to 0.0f to be the same size as the textureSize
+unsigned int BatchRenderer2D::add(const sf::CircleShape& circleShape, unsigned int textureSize, float quadSize = 0.0f, sf::Color backgroundColor) 
 {
 	sf::Vector2u newQuadUVOffsets = m_textureAtlas.getSize();
 	sf::Vector2f newQuadUVOffsetsFloat(static_cast<float>(newQuadUVOffsets.x), static_cast<float>(newQuadUVOffsets.y));
@@ -30,7 +33,7 @@ unsigned int BatchRenderer2D::add(const sf::CircleShape& circleShape, unsigned i
 	// Set the new Atlas's height to the texture size if its bigger
 	unsigned int newAtlasHeight = (m_textureAtlas.getSize().y < textureSize) ? textureSize : m_textureAtlas.getSize().y;
 
-	// Create a new texture width the required additionnal space (can't resize an existing texture)
+	// Create a new texture width the required additionnal space (can't resize an existing texture we need to create a new one)
 	newAtlas.create(m_textureAtlas.getSize().x + textureSize, newAtlasHeight);
 
 	// Copy the old texture atlas into the new one
@@ -42,12 +45,22 @@ unsigned int BatchRenderer2D::add(const sf::CircleShape& circleShape, unsigned i
 	// Swap the old atlas for new one
 	m_textureAtlas.swap(newAtlas);
 
+	// Store the texture size so we know how big the quad is
+	m_quadSizes.emplace_back(quadSize);
+
 	return (m_vertices.size() / 4) - 1;
 }
 
 void BatchRenderer2D::draw(sf::RenderTarget * renderTarget)
 {
+	if (m_vertexBufferNeedsUpdate)
+	{
+		m_vertexBuffer.update(m_vertices.data(), m_vertices.size(), 0);
+		m_vertexBufferNeedsUpdate = false;
+	}
 
+	//TODO : implement the option to set a custom shader(bloom ?)
+	renderTarget->draw(m_vertexBuffer, m_renderState);
 }
 
 // Draws the whole texture atlas
@@ -59,4 +72,24 @@ void BatchRenderer2D::drawAtlas(sf::RenderTarget * renderTarget, float x, float 
 	rect.setTexture(&m_textureAtlas);
 	renderTarget->draw(rect);
 	rect.setTexture(NULL); // Destroy the reference to the texture
+}
+
+void BatchRenderer2D::setPos(std::size_t index, float x, float y)
+{
+	float size = m_quadSizes[index];
+
+	m_vertices[index * 4].position.x = x - size;
+	m_vertices[index * 4].position.y = y - size;
+
+	m_vertices[index * 4 + 1].position.x = x + size;
+	m_vertices[index * 4 + 1].position.y = y - size;
+
+	m_vertices[index * 4 + 2].position.x = x + size;
+	m_vertices[index * 4 + 2].position.y = y + size;
+
+	m_vertices[index * 4 + 3].position.x = x - size;
+	m_vertices[index * 4 + 3].position.y = y + size;
+
+	// Invalidate the current vertex buffer since we modified the content and it needs to be updated inside the GPU
+	m_vertexBufferNeedsUpdate = true;
 }
