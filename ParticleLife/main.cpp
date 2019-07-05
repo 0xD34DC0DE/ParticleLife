@@ -6,13 +6,16 @@
 
 // Work based on: https://github.com/HackerPoet/Particle-Life/blob/master/Universe.cpp
 
-//TODO : Implement a batchDrawing class that renders the circle inside a texture atlas 
 // and use a VertexBuffer to draw the shapes instead of calling ".draw()" for every shape
 
 //TODO : implement more complex interactions: example: limit the number of interactions per particle type, some interaction are stonger than average so they act like bonds
 // and finally some non-linear attraction formula between certain types
 
 //TODO : Check if the FPS computation is accurate (debug draw-> 100fps+, no debugDraw -> 60fps? ?nani?)
+
+//TODO : Investigate stability when density of particles in same location is high
+
+//TODO : Add a way to select a particle type and randomize its values (needs to propagate to other types too)
 
 int main()
 {
@@ -31,7 +34,7 @@ int main()
 	env.setNeighboorSearchRadiusModeAuto(true);
 	//env.setNeighboorSearchRadius(250.0f);
 
-	env.createRandomParticles(256, 0.0f, 0.1f);
+	env.createRandomParticles(1000, 0.0f, 0.1f);
 	env.setBoundaryCollisionType(SOLID);
 	env.setDebugDrawingAlpha(1);
 

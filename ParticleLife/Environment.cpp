@@ -7,8 +7,6 @@
 
 #define TEXTURE_RES 32
 
-//TODO : store the min and max radius of an interaction for debug drawing
-
 Environment::Environment(unsigned int width, unsigned int height)
 {
 	m_width = static_cast<float>(width);
@@ -57,7 +55,6 @@ void Environment::update()
 	{
 		Particle& p = m_particles[i];
 
-		//TODO : Remove this simple gravity test to the actual genome based acceleration computation
 		//TODO : Find a more stable Integrator
 		unsigned int neighboorCount = m_getNeighbours(p, m_neighboorSearchRadius);
 

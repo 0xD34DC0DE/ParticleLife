@@ -11,9 +11,7 @@ BatchRenderer2D::BatchRenderer2D()
 	m_spriteCount = 0;
 }
 
-//TODO : Fix "Failed to create texture, its internal size is too high (32832x64, maximum is 32768x32768)"
 // Returns the ID of the sprite
-// Leave quadSize to 0.0f to be the same size as the textureSize
 //TODO : Make it so we can batch our particles when adding them
 unsigned int BatchRenderer2D::addTexture(const sf::CircleShape& circleShape, unsigned int textureSize, sf::Color backgroundColor) 
 {
