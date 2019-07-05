@@ -12,10 +12,12 @@
 //TODO : implement more complex interactions: example: limit the number of interactions per particle type, some interaction are stonger than average so they act like bonds
 // and finally some non-linear attraction formula between certain types
 
+//TODO : Check if the FPS computation is accurate (debug draw-> 100fps+, no debugDraw -> 60fps?)
+
 int main()
 {
-	const unsigned int width = 500;
-	const unsigned int height = 500;
+	const unsigned int width = 1024;
+	const unsigned int height = 1024;
 	sf::RenderWindow window(sf::VideoMode(width, height), "Particle Life");
 	window.setFramerateLimit(60);
 
@@ -29,25 +31,21 @@ int main()
 	env.setNeighboorSearchRadiusModeAuto(true);
 	//env.setNeighboorSearchRadius(250.0f);
 
-	env.createRandomParticles(250, 0.0f, 0.1f);
-	env.setBoundaryCollisionType(WRAP);
+	env.createRandomParticles(256, 0.0f, 0.1f);
+	env.setBoundaryCollisionType(SOLID);
 	env.setDebugDrawingAlpha(1);
 
-	const unsigned int updatePerFrame = 3;
+	const unsigned int updatePerFrame = 2;
 
-
-	sf::CircleShape cs1(10.0f);
-	cs1.setOrigin(10.0f, 10.0f);
-	cs1.setFillColor(sf::Color::Blue);
-
-	BatchRenderer2D br2d;
-	br2d.add(cs1, 128, 10.0f);
-
-	cs1.setFillColor(sf::Color::Yellow);
-	br2d.add(cs1, 128, 10.0f);
-
-	br2d.setPos(0, 256, 256);
-	br2d.setPos(1, 100, 256);
+	// FPS Counter stuff
+	sf::Clock clk;
+	float times[5]{0.0f};
+	unsigned int tick = 0;
+	sf::Font FPSFont;
+	FPSFont.loadFromFile("./../ressources/ARIAL.ttf");
+	sf::Text FPSText("", FPSFont);
+	FPSText.setFillColor(sf::Color::White);
+	FPSText.setCharacterSize(20);
 
 	sf::Event evnt;
 	while (window.isOpen())
@@ -64,16 +62,28 @@ int main()
 			}
 		}
 
+		clk.restart();
 		window.clear();
-		/*
+		
 		for(unsigned int i = 0; i < updatePerFrame; i++)
 			env.update();
 
 		env.draw(&window);
-		*/
-		br2d.draw(&window);
-		//br2d.drawAtlas(&window, 256, 256, 64, 32);
+
+		window.draw(FPSText);
+
 		window.display();
+
+
+		times[tick % 5] = 60.0f * (60.0f / 1000.0f) * clk.getElapsedTime().asMilliseconds();
+		float avg = 0.0f;
+		for (unsigned int i = 0; i < 5; i++)
+			avg += times[i];
+		avg /= 5.0f;
+
+		FPSText.setString(std::to_string(avg).substr(0, 5));
+
+		tick++;
 	}
 
 	return 0;

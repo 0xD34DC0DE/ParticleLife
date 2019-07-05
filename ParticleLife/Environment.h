@@ -5,6 +5,7 @@
 #include <random>
 #include <cinttypes>
 #include <tuple>
+#include "BatchRenderer2D.h"
 
 enum BoundaryCollisionType : unsigned int
 {
@@ -38,6 +39,8 @@ public:
 	void setNeighboorSearchRadiusModeAuto(bool enabled);
 	void setParams(float attract_mean, float attract_std, float minr_lower, float minr_upper, float maxr_lower, float maxr_upper, float friction, bool flat_force);
 	void setDebugDrawingAlpha(unsigned char alpha);
+
+
 private:
 	sf::Color m_randomColor();
 	std::uniform_int_distribution<unsigned int> m_randByte;
@@ -46,12 +49,17 @@ private:
 	// Debug stuff
 	void m_debugDraw(sf::RenderWindow* window);
 	sf::VertexArray m_debugInteractionLines;
-
 	bool m_drawDebug;
+	unsigned char m_debugDrawingAlpha;
+	unsigned int m_debugDrawConf;
 
 	
-
 	unsigned int m_getNeighbours(const Particle& particle, float searchRadius);
+
+	void m_buildRenderBatch(unsigned int textureRes, unsigned int offset = 0);
+	void m_updateRenderBatchPos();
+
+
 
 	BoundaryCollisionType m_bndColTy;
 	float m_width, m_height, m_boundWidth, m_boundHeight;
@@ -60,7 +68,7 @@ private:
 	std::vector<std::pair<Particle*, float>> m_neighboorPtrBuffer;
 	std::size_t m_lastNeighboorScanCount;
 	ParticleTypes m_types;
-	unsigned int m_debugDrawConf;
+
 	bool m_useFlatForce;
 	float m_friction;
 	float m_attract_mean;
@@ -71,12 +79,12 @@ private:
 	float m_maxr_upper;
 	float m_neighboorSearchRadius;
 	bool m_autoSearchNeighboorRadius;
-	unsigned char m_debugDrawingAlpha;
+
 
 	std::vector<std::pair<float, float>> m_debugDrawingRadii;
 
 	std::random_device m_rd;
 	std::mt19937 m_gen;
 
-
+	BatchRenderer2D m_batchRenderer;
 };

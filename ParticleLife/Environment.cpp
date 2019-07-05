@@ -5,6 +5,7 @@
 #define DIAMETER 2.0f * RADIUS
 #define R_SMOOTH 2.0f
 
+#define TEXTURE_RES 32
 
 //TODO : store the min and max radius of an interaction for debug drawing
 
@@ -155,9 +156,13 @@ void Environment::update()
 
 void Environment::draw(sf::RenderWindow * window)
 {
-	//TODO : Update drawing method to use SFML's Vertex buffer to draw the circles
+	// Update the quads positions for the batch renderer
+	m_updateRenderBatchPos();
 
-	sf::CircleShape shape(static_cast<float>(RADIUS), 11);
+	m_batchRenderer.draw(window);
+
+	
+	/*sf::CircleShape shape(static_cast<float>(RADIUS), 11);
 	shape.setOrigin(static_cast<float>(RADIUS), static_cast<float>(RADIUS));
 	shape.setOutlineColor(sf::Color::Transparent);
 	shape.setOutlineThickness(1.0f);
@@ -177,11 +182,13 @@ void Environment::draw(sf::RenderWindow * window)
 				m_debugDraw(window);
 			}
 		}
-	}
+	}*/
 }
 
 void Environment::m_debugDraw(sf::RenderWindow * window)
 {
+	//TODO : Update this to use Batch rendering too
+
 	sf::CircleShape shape(static_cast<float>(RADIUS), 11);
 	shape.setOrigin(static_cast<float>(RADIUS), static_cast<float>(RADIUS));
 	shape.setOutlineColor(sf::Color::Transparent);
@@ -256,6 +263,10 @@ void Environment::createRandomParticles(std::size_t particleCount, float velMean
 	{
 		m_particles.emplace_back(randUniPosW(m_gen), randUniPosH(m_gen), randNormVel(m_gen), randNormVel(m_gen), (uint8_t)(randCol(m_gen)));
 	}
+
+	
+	// Add the particles to the batch renderer
+	m_buildRenderBatch(TEXTURE_RES);
 }
 
 void Environment::addRandomTypes(std::size_t typeCount)
@@ -421,4 +432,28 @@ unsigned int Environment::m_getNeighbours(const Particle& particle, float search
 	}
 
 	return neighboorCount;
+}
+
+// Use offset add new particles
+void Environment::m_buildRenderBatch(unsigned int textureRes, unsigned int offset)
+{
+	sf::CircleShape shape(static_cast<float>(RADIUS), 16);
+	shape.setOrigin(static_cast<float>(RADIUS), static_cast<float>(RADIUS));
+	
+	for (unsigned int i = offset; i < m_particleCount; i++)
+	{
+		Particle& p = m_particles[i];
+		shape.setFillColor(m_types.color(p.type));
+		m_batchRenderer.add(shape, textureRes, static_cast<float>(RADIUS));
+		m_batchRenderer.setPos(i, p.x, p.y);
+	}
+
+}
+
+void Environment::m_updateRenderBatchPos()
+{
+	for (unsigned int i = 0; i < m_particleCount; i++)
+	{
+		m_batchRenderer.setPos(i, m_particles[i].x, m_particles[i].y);
+	}
 }
