@@ -12,7 +12,7 @@
 //TODO : implement more complex interactions: example: limit the number of interactions per particle type, some interaction are stonger than average so they act like bonds
 // and finally some non-linear attraction formula between certain types
 
-//TODO : Check if the FPS computation is accurate (debug draw-> 100fps+, no debugDraw -> 60fps?)
+//TODO : Check if the FPS computation is accurate (debug draw-> 100fps+, no debugDraw -> 60fps? ?nani?)
 
 int main()
 {
@@ -69,7 +69,7 @@ int main()
 			env.update();
 
 		env.draw(&window);
-
+		
 		window.draw(FPSText);
 
 		window.display();

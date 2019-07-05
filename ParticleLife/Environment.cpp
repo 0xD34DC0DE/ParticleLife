@@ -404,6 +404,11 @@ void Environment::setDebugDrawingAlpha(unsigned char alpha)
 	m_debugDrawingAlpha = alpha;
 }
 
+void Environment::drawDebugTextureAtlas(sf::RenderTarget * renderTarget, float x, float y, float width, float height)
+{
+	m_batchRenderer.drawAtlas(renderTarget, x, y, width, height);
+}
+
 unsigned int Environment::m_getNeighbours(const Particle& particle, float searchRadius)
 {
 	//TODO : Replace with a quad-tree or another space partitioning data structure
@@ -439,13 +444,24 @@ void Environment::m_buildRenderBatch(unsigned int textureRes, unsigned int offse
 {
 	sf::CircleShape shape(static_cast<float>(RADIUS), 16);
 	shape.setOrigin(static_cast<float>(RADIUS), static_cast<float>(RADIUS));
+
+
+	//TODO : Add a way to check if textures for the particle types already exists
+
+	// Loops through every type and create a single texture for each one
+	unsigned int typeCount = m_types.getTypeCount();
+	for (unsigned int i = 0; i < typeCount; i++)
+	{
+		shape.setFillColor(m_types.color(i));
+		m_batchRenderer.addTexture(shape, textureRes);
+	}
 	
+	// Create a sprite for every particle and bind its texture to the corresponding type's texture
 	for (unsigned int i = offset; i < m_particleCount; i++)
 	{
 		Particle& p = m_particles[i];
-		shape.setFillColor(m_types.color(p.type));
-		m_batchRenderer.add(shape, textureRes, static_cast<float>(RADIUS));
-		m_batchRenderer.setPos(i, p.x, p.y);
+		
+		m_batchRenderer.addSprite(p.x, p.y, RADIUS, p.type - 1);
 	}
 
 }

@@ -8,7 +8,9 @@ class BatchRenderer2D
 public:
 	BatchRenderer2D();
 
-	unsigned int add(const sf::CircleShape& circleShape, unsigned int textureSize, float quadSize, sf::Color backgroundColor = sf::Color::Transparent);
+	unsigned int addTexture(const sf::CircleShape& circleShape, unsigned int textureSize, sf::Color backgroundColor = sf::Color::Transparent);
+
+	unsigned int addSprite(float x, float y, float quadSize, int textureIndex = -1);
 
 	void draw(sf::RenderTarget* renderTarget);
 
@@ -20,9 +22,12 @@ private:
 	sf::VertexBuffer m_vertexBuffer;
 	sf::Texture m_textureAtlas;
 	unsigned int m_textureCount;
+	unsigned int m_spriteCount;
 	std::vector<sf::Vertex> m_vertices;
 	std::vector<float> m_quadSizes;
 	bool m_vertexBufferNeedsUpdate;
 	sf::RenderStates m_renderState;
+	std::vector<unsigned int> m_textureSizes;
+	std::vector<float> m_texturesUVOffsets;
 };
 

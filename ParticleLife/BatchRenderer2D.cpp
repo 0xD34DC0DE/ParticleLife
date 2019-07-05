@@ -1,34 +1,26 @@
 #include "BatchRenderer2D.h"
 
 
-
 BatchRenderer2D::BatchRenderer2D()
 {
 	m_vertexBuffer.create(1);
 	m_vertexBuffer.setPrimitiveType(sf::PrimitiveType::Quads);
 	m_vertexBufferNeedsUpdate = true;
 	m_renderState = sf::RenderStates(&m_textureAtlas);
+	m_textureCount = 0;
+	m_spriteCount = 0;
 }
 
 //TODO : Fix "Failed to create texture, its internal size is too high (32832x64, maximum is 32768x32768)"
 // Returns the ID of the sprite
 // Leave quadSize to 0.0f to be the same size as the textureSize
 //TODO : Make it so we can batch our particles when adding them
-unsigned int BatchRenderer2D::add(const sf::CircleShape& circleShape, unsigned int textureSize, float quadSize = 0.0f, sf::Color backgroundColor) 
+unsigned int BatchRenderer2D::addTexture(const sf::CircleShape& circleShape, unsigned int textureSize, sf::Color backgroundColor) 
 {
-	sf::Vector2u newQuadUVOffsets = m_textureAtlas.getSize();
-	sf::Vector2f newQuadUVOffsetsFloat(static_cast<float>(newQuadUVOffsets.x), static_cast<float>(newQuadUVOffsets.y));
+	m_textureCount++;
 
-	const float textureSizeFloat = static_cast<float>(textureSize);
-
-	// create new vertices for the quad with the correct UV coordinates
-	m_vertices.emplace_back(sf::Vertex(sf::Vector2f(0.0f, 0.0f), sf::Vector2f(newQuadUVOffsets.x, 0.0f)));
-	m_vertices.emplace_back(sf::Vertex(sf::Vector2f(textureSizeFloat, 0.0f), sf::Vector2f(newQuadUVOffsets.x + textureSizeFloat, 0.0f)));
-	m_vertices.emplace_back(sf::Vertex(sf::Vector2f(textureSizeFloat, textureSizeFloat), sf::Vector2f(newQuadUVOffsets.x + textureSizeFloat, textureSizeFloat)));
-	m_vertices.emplace_back(sf::Vertex(sf::Vector2f(0.0f, textureSizeFloat), sf::Vector2f(newQuadUVOffsets.x, textureSizeFloat)));
-
-	// Update the vertices of the vertex buffer
-	m_vertexBuffer.update(m_vertices.data(), m_vertices.size(), 0);
+	// Store the texture offset so sprites can refer to it later without linear search
+	m_texturesUVOffsets.emplace_back(static_cast<float>((m_textureAtlas.getSize().x)));
 
 	sf::Texture newAtlas;
 
@@ -48,10 +40,40 @@ unsigned int BatchRenderer2D::add(const sf::CircleShape& circleShape, unsigned i
 	m_textureAtlas.swap(newAtlas);
 
 	// Store the texture size so we know how big the quad is
+	m_textureSizes.emplace_back(textureSize);
+
+	return m_textureCount;
+}
+
+unsigned int BatchRenderer2D::addSprite(float x, float y, float quadSize, int textureIndex)
+{
+	m_spriteCount++;
+
 	m_quadSizes.emplace_back(quadSize);
 
-	return (m_vertices.size() / 4) - 1;
+	float uvOffset = 0.0f;
+	float textureSize = 0.0f;
+
+	if (textureIndex != -1)
+	{
+		uvOffset = m_texturesUVOffsets[textureIndex];
+		textureSize = m_textureSizes[textureIndex];
+	}
+		
+
+	// create new vertices for the quad with the correct UV coordinates
+	m_vertices.emplace_back(sf::Vertex(sf::Vector2f(x, y), sf::Vector2f(uvOffset, 0.0f)));
+	m_vertices.emplace_back(sf::Vertex(sf::Vector2f(quadSize, 0.0f), sf::Vector2f(uvOffset + textureSize, 0.0f)));
+	m_vertices.emplace_back(sf::Vertex(sf::Vector2f(quadSize, quadSize), sf::Vector2f(uvOffset + textureSize, textureSize)));
+	m_vertices.emplace_back(sf::Vertex(sf::Vector2f(0.0f, quadSize), sf::Vector2f(uvOffset, textureSize)));
+
+	// Invalidate the current vertex buffer since we modified the content and it needs to be updated inside the GPU
+	m_vertexBufferNeedsUpdate = true;
+
+	// return current sprite index
+	return m_spriteCount - 1;
 }
+
 
 void BatchRenderer2D::draw(sf::RenderTarget * renderTarget)
 {

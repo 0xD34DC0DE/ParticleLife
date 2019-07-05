@@ -40,6 +40,7 @@ public:
 	void setParams(float attract_mean, float attract_std, float minr_lower, float minr_upper, float maxr_lower, float maxr_upper, float friction, bool flat_force);
 	void setDebugDrawingAlpha(unsigned char alpha);
 
+	void drawDebugTextureAtlas(sf::RenderTarget * renderTarget, float x, float y, float width, float height);
 
 private:
 	sf::Color m_randomColor();
