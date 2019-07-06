@@ -1,12 +1,9 @@
 #include <SFML/Graphics.hpp>
 
 #include "Environment.h"
-
-#include "BatchRenderer2D.h"
+#include "FPSCounter.h"
 
 // Work based on: https://github.com/HackerPoet/Particle-Life/blob/master/Universe.cpp
-
-// and use a VertexBuffer to draw the shapes instead of calling ".draw()" for every shape
 
 //TODO : implement more complex interactions: example: limit the number of interactions per particle type, some interaction are stonger than average so they act like bonds
 // and finally some non-linear attraction formula between certain types
@@ -34,21 +31,15 @@ int main()
 	env.setNeighboorSearchRadiusModeAuto(true);
 	//env.setNeighboorSearchRadius(250.0f);
 
-	env.createRandomParticles(1000, 0.0f, 0.1f);
+	env.createRandomParticles(500, 0.0f, 0.1f);
 	env.setBoundaryCollisionType(SOLID);
 	env.setDebugDrawingAlpha(1);
 
 	const unsigned int updatePerFrame = 2;
 
-	// FPS Counter stuff
-	sf::Clock clk;
-	float times[5]{0.0f};
+	FPSCounter fpsCounter(60.0f, 15, "./../ressources/ARIAL.ttf");
+
 	unsigned int tick = 0;
-	sf::Font FPSFont;
-	FPSFont.loadFromFile("./../ressources/ARIAL.ttf");
-	sf::Text FPSText("", FPSFont);
-	FPSText.setFillColor(sf::Color::White);
-	FPSText.setCharacterSize(20);
 
 	sf::Event evnt;
 	while (window.isOpen())
@@ -65,7 +56,8 @@ int main()
 			}
 		}
 
-		clk.restart();
+		fpsCounter.start();
+
 		window.clear();
 		
 		for(unsigned int i = 0; i < updatePerFrame; i++)
@@ -73,18 +65,11 @@ int main()
 
 		env.draw(&window);
 		
-		window.draw(FPSText);
+		fpsCounter.draw(&window);
 
 		window.display();
 
-
-		times[tick % 5] = 60.0f * (60.0f / 1000.0f) * clk.getElapsedTime().asMilliseconds();
-		float avg = 0.0f;
-		for (unsigned int i = 0; i < 5; i++)
-			avg += times[i];
-		avg /= 5.0f;
-
-		FPSText.setString(std::to_string(avg).substr(0, 5));
+		fpsCounter.stop();
 
 		tick++;
 	}
