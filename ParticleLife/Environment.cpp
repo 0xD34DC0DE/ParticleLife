@@ -31,6 +31,8 @@ Environment::Environment(unsigned int width, unsigned int height)
 	m_neighboorSearchRadius = std::sqrt(width * width + height * height);
 	m_autoSearchNeighboorRadius = false;
 	m_debugDrawingAlpha = 255;
+	m_debugMinRBatchRendererInitialized = false;
+	m_debugMaxRBatchRendererInitialized = false;
 }
 
 sf::Color Environment::m_randomColor()
@@ -156,85 +158,43 @@ void Environment::draw(sf::RenderWindow * window)
 	// Update the quads positions for the batch renderer
 	m_updateRenderBatchPos();
 
-	m_batchRenderer.draw(window);
+	m_particleBatchRenderer.draw(window);
 
-	
-	/*sf::CircleShape shape(static_cast<float>(RADIUS), 11);
-	shape.setOrigin(static_cast<float>(RADIUS), static_cast<float>(RADIUS));
-	shape.setOutlineColor(sf::Color::Transparent);
-	shape.setOutlineThickness(1.0f);
-
-	for (unsigned int i = 0; i < m_particleCount; i++)
+	if (m_drawDebug)
 	{
-		Particle& p = m_particles[i];
-		shape.setPosition(p.x, p.y);
-		shape.setFillColor(m_types.color(p.type));
-		shape.setOrigin(static_cast<float>(RADIUS), static_cast<float>(RADIUS));
-		window->draw(shape);
-
-		if (m_drawDebug)
-		{
-			if (m_debugDrawConf != DebugDrawConfig::NO_DEBUG_DRAW)
-			{
-				m_debugDraw(window);
-			}
-		}
-	}*/
+		m_debugDraw(window);
+	}
 }
 
 void Environment::m_debugDraw(sf::RenderWindow * window)
 {
-	//TODO : Update this to use Batch rendering too
-
-	sf::CircleShape shape(static_cast<float>(RADIUS), 11);
-	shape.setOrigin(static_cast<float>(RADIUS), static_cast<float>(RADIUS));
-	shape.setOutlineColor(sf::Color::Transparent);
-	shape.setOutlineThickness(1.0f);
-
-	for (unsigned int i = 0; i < m_particleCount; i++)
+	// Only draw debug when its enabled
+	if (m_debugDrawConf != DebugDrawConfig::NO_DEBUG_DRAW)
 	{
-		Particle& p = m_particles[i];
-		shape.setPosition(p.x, p.y);
-		shape.setFillColor(m_types.color(p.type));
-		shape.setOrigin(static_cast<float>(RADIUS), static_cast<float>(RADIUS));
-		window->draw(shape);
+		if (m_debugMinRBatchRendererInitialized == false)
+			m_buildDebugMinRRenderBatch();
 
-		if (m_drawDebug) // Only draw debug when its enabled
+		if (m_debugMaxRBatchRendererInitialized == false)
+			m_buildDebugMaxRRenderBatch();
+
+		if (m_debugDrawConf & DebugDrawConfig::MIN_RADIUS)
 		{
-			if (m_debugDrawConf & DebugDrawConfig::MIN_RADIUS)
-			{
-				shape.setFillColor(sf::Color::Transparent);
-				// Min radius drawing
-				shape.setOutlineColor(sf::Color(255,255,0,m_debugDrawingAlpha));
-				float radius = m_debugDrawingRadii[p.type].first;
-				shape.setRadius(radius);
-				shape.setOrigin(radius, radius);
-				window->draw(shape);
-				shape.setOutlineColor(sf::Color::Transparent);
-				shape.setRadius(static_cast<float>(RADIUS));
-			}
-
-			if (m_debugDrawConf & DebugDrawConfig::MAX_RADIUS)
-			{
-				shape.setFillColor(sf::Color::Transparent);
-				// Min radius drawing
-				shape.setOutlineColor(sf::Color(255, 0, 255, m_debugDrawingAlpha));
-				float radius = m_debugDrawingRadii[p.type].second;
-				shape.setRadius(radius);
-				shape.setOrigin(radius, radius);
-				window->draw(shape);
-				shape.setOutlineColor(sf::Color::Transparent);
-				shape.setRadius(static_cast<float>(RADIUS));
-			}
+			m_updateDebugMinRRenderBatchPos();
+			m_minRadiusBatchRenderer.draw(window);
 		}
-	}
-	if (m_drawDebug) // Only draw debug when its enabled
-	{
+
+		if (m_debugDrawConf & DebugDrawConfig::MAX_RADIUS)
+		{
+			m_updateDebugMaxRRenderBatchPos();
+			m_maxRadiusBatchRenderer.draw(window);
+		}
+
 		if (m_debugDrawConf & DebugDrawConfig::INTERACTION_LINE)
 		{
 			window->draw(m_debugInteractionLines);
 		}
 	}
+
 }
 
 void Environment::createRandomParticles(std::size_t particleCount, float velMean, float velStd)
@@ -261,7 +221,7 @@ void Environment::createRandomParticles(std::size_t particleCount, float velMean
 		m_particles.emplace_back(randUniPosW(m_gen), randUniPosH(m_gen), randNormVel(m_gen), randNormVel(m_gen), (uint8_t)(randCol(m_gen)));
 	}
 
-	
+
 	// Add the particles to the batch renderer
 	m_buildRenderBatch(TEXTURE_RES);
 }
@@ -403,7 +363,7 @@ void Environment::setDebugDrawingAlpha(unsigned char alpha)
 
 void Environment::drawDebugTextureAtlas(sf::RenderTarget * renderTarget, float x, float y, float width, float height)
 {
-	m_batchRenderer.drawAtlas(renderTarget, x, y, width, height);
+	m_particleBatchRenderer.drawAtlas(renderTarget, x, y, width, height);
 }
 
 unsigned int Environment::m_getNeighbours(const Particle& particle, float searchRadius)
@@ -440,8 +400,6 @@ unsigned int Environment::m_getNeighbours(const Particle& particle, float search
 void Environment::m_buildRenderBatch(unsigned int textureRes, unsigned int offset)
 {
 	sf::CircleShape shape(static_cast<float>(RADIUS), 16);
-	shape.setOrigin(static_cast<float>(RADIUS), static_cast<float>(RADIUS));
-
 
 	//TODO : Add a way to check if textures for the particle types already exists
 
@@ -450,23 +408,89 @@ void Environment::m_buildRenderBatch(unsigned int textureRes, unsigned int offse
 	for (unsigned int i = 0; i < typeCount; i++)
 	{
 		shape.setFillColor(m_types.color(i));
-		m_batchRenderer.addTexture(shape, textureRes);
+		m_particleBatchRenderer.addTexture(shape, textureRes);
 	}
-	
+
 	// Create a sprite for every particle and bind its texture to the corresponding type's texture
 	for (unsigned int i = offset; i < m_particleCount; i++)
 	{
 		Particle& p = m_particles[i];
-		
-		m_batchRenderer.addSprite(p.x, p.y, RADIUS, p.type - 1);
+
+		m_particleBatchRenderer.addSprite(p.x, p.y, RADIUS, p.type - 1);
+	}
+}
+
+void Environment::m_buildDebugMinRRenderBatch()
+{
+	sf::CircleShape shape(1.0f, 32);
+	shape.setFillColor(sf::Color::Transparent);
+	shape.setOutlineThickness(1.0f);
+	shape.setOutlineColor(sf::Color::Yellow);
+
+	// Need a single texture since we can change the sprite size to match the radius;
+	unsigned int typeCount = m_types.getTypeCount();
+	for (unsigned int i = 0; i < typeCount; i++)
+	{
+		m_minRadiusBatchRenderer.addTexture(shape, m_debugDrawingRadii[i].first * 2.0f);
+	}
+	
+	// Loops through every particle and create a sprite with matching size for the radius for each one
+	for (unsigned int i = 0; i < m_particleCount; i++)
+	{
+		Particle& p = m_particles[i];
+
+		m_minRadiusBatchRenderer.addSprite(p.x, p.y, m_debugDrawingRadii[p.type].first, 0); // 0 because there is only one texture, we only change the size of the sprite
 	}
 
+	m_debugMinRBatchRendererInitialized = true;
+}
+
+void Environment::m_buildDebugMaxRRenderBatch()
+{
+	sf::CircleShape shape(1.0f, 32);
+	shape.setFillColor(sf::Color::Transparent);
+	shape.setOutlineThickness(1.0f);
+	shape.setOutlineColor(sf::Color::Yellow);
+
+	// Need a single texture since we can change the sprite size to match the radius;
+	unsigned int typeCount = m_types.getTypeCount();
+	for (unsigned int i = 0; i < typeCount; i++)
+	{
+		//TODO : Check if twice the resolution is a good implementation
+		m_maxRadiusBatchRenderer.addTexture(shape, m_debugDrawingRadii[i].second * 2.0f);
+	}
+
+	// Loops through every particle and create a sprite with matching size for the radius for each one
+	for (unsigned int i = 0; i < m_particleCount; i++)
+	{
+		Particle& p = m_particles[i];
+
+		m_maxRadiusBatchRenderer.addSprite(p.x, p.y, m_debugDrawingRadii[p.type].second, 0); // 0 because there is only one texture, we only change the size of the sprite
+	}
+
+	m_debugMaxRBatchRendererInitialized = true;
 }
 
 void Environment::m_updateRenderBatchPos()
 {
 	for (unsigned int i = 0; i < m_particleCount; i++)
 	{
-		m_batchRenderer.setPos(i, m_particles[i].x, m_particles[i].y);
+		m_particleBatchRenderer.setPos(i, m_particles[i].x, m_particles[i].y);
+	}
+}
+
+void Environment::m_updateDebugMinRRenderBatchPos()
+{
+	for (unsigned int i = 0; i < m_particleCount; i++)
+	{
+		m_minRadiusBatchRenderer.setPos(i, m_particles[i].x, m_particles[i].y);
+	}
+}
+
+void Environment::m_updateDebugMaxRRenderBatchPos()
+{
+	for (unsigned int i = 0; i < m_particleCount; i++)
+	{
+		m_maxRadiusBatchRenderer.setPos(i, m_particles[i].x, m_particles[i].y);
 	}
 }

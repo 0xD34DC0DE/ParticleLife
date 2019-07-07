@@ -58,7 +58,14 @@ private:
 	unsigned int m_getNeighbours(const Particle& particle, float searchRadius);
 
 	void m_buildRenderBatch(unsigned int textureRes, unsigned int offset = 0);
+
+	void m_buildDebugMinRRenderBatch();
+	void m_buildDebugMaxRRenderBatch();
+
+
 	void m_updateRenderBatchPos();
+	void m_updateDebugMinRRenderBatchPos();
+	void m_updateDebugMaxRRenderBatchPos();
 
 
 
@@ -87,5 +94,13 @@ private:
 	std::random_device m_rd;
 	std::mt19937 m_gen;
 
-	BatchRenderer2D m_batchRenderer;
+
+	BatchRenderer2D m_particleBatchRenderer;
+
+	bool m_debugMinRBatchRendererInitialized;
+	bool m_debugMaxRBatchRendererInitialized;
+
+	//TODO : parametrize debug color and setup debug alpha
+	BatchRenderer2D m_minRadiusBatchRenderer;
+	BatchRenderer2D m_maxRadiusBatchRenderer;
 };

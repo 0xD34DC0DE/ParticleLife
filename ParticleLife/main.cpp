@@ -14,6 +14,11 @@
 
 //TODO : Add a way to select a particle type and randomize its values (needs to propagate to other types too)
 
+//TODO : Add boundary type that repulse particle so they don't stick to the walls and bunch up in corners
+
+//TODO : Make TEXTURE_RES arguments use a resolution relative to the resolution  of the window
+
+//TODO : Check why there is invisible particle (using MIN_RADIUS drawing)
 int main()
 {
 	const unsigned int width = 1024;
@@ -22,8 +27,8 @@ int main()
 	window.setFramerateLimit(60);
 
 	Environment env(width, height);
-	env.setDebugDrawing(false);
-	env.setDebugFlags(DebugDrawConfig::INTERACTION_LINE);
+	env.setDebugDrawing(true);
+	env.setDebugFlags(DebugDrawConfig::INTERACTION_LINE | DebugDrawConfig::MAX_RADIUS);
 	env.setParams(-0.02f, 0.06f, 0.0f, 20.0f, 20.0f, 70.0f, 0.05f, false);
 
 	env.addRandomTypes(7);
