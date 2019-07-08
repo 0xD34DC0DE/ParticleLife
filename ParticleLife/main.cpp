@@ -18,7 +18,6 @@
 
 //TODO : Make TEXTURE_RES arguments use a resolution relative to the resolution  of the window
 
-//TODO : Check why there is invisible particle (using MIN_RADIUS drawing)
 int main()
 {
 	const unsigned int width = 1024;

@@ -416,7 +416,7 @@ void Environment::m_buildRenderBatch(unsigned int textureRes, unsigned int offse
 	{
 		Particle& p = m_particles[i];
 
-		m_particleBatchRenderer.addSprite(p.x, p.y, RADIUS, p.type - 1);
+		m_particleBatchRenderer.addSprite(p.x, p.y, RADIUS, p.type);
 	}
 }
 

@@ -60,7 +60,7 @@ unsigned int BatchRenderer2D::addSprite(float x, float y, float quadSize, int te
 		
 
 	// create new vertices for the quad with the correct UV coordinates
-	m_vertices.emplace_back(sf::Vertex(sf::Vector2f(x, y), sf::Vector2f(uvOffset, 0.0f)));
+	m_vertices.emplace_back(sf::Vertex(sf::Vector2f(0.0f, 0.0f), sf::Vector2f(uvOffset, 0.0f)));
 	m_vertices.emplace_back(sf::Vertex(sf::Vector2f(quadSize, 0.0f), sf::Vector2f(uvOffset + textureSize, 0.0f)));
 	m_vertices.emplace_back(sf::Vertex(sf::Vector2f(quadSize, quadSize), sf::Vector2f(uvOffset + textureSize, textureSize)));
 	m_vertices.emplace_back(sf::Vertex(sf::Vector2f(0.0f, quadSize), sf::Vector2f(uvOffset, textureSize)));
