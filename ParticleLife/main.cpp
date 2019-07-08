@@ -64,8 +64,7 @@ int main()
 
 		window.clear();
 		
-		for(unsigned int i = 0; i < updatePerFrame; i++)
-			env.update();
+		env.update(updatePerFrame);
 
 		env.draw(&window);
 		

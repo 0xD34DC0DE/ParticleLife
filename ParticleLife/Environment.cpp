@@ -40,8 +40,13 @@ sf::Color Environment::m_randomColor()
 	return sf::Color(m_randByte(m_gen), m_randByte(m_gen), m_randByte(m_gen));
 }
 
+void Environment::update(unsigned int stepCount)
+{
+	for (unsigned int i = 0; i < stepCount; i++)
+		m_stepStimulation();
+}
 
-void Environment::update()
+void Environment::m_stepStimulation()
 {
 	const float r = static_cast<float>(RADIUS);
 

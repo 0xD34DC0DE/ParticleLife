@@ -26,7 +26,7 @@ class Environment
 {
 public:
 	Environment(unsigned int width, unsigned int height);
-	void update();
+	void update(unsigned int stepCount = 1);
 	void draw(sf::RenderWindow* window);
 	void createRandomParticles(std::size_t particleCount, float velMean, float velStd);
 	void addRandomTypes(std::size_t typeCount);
@@ -56,6 +56,7 @@ private:
 
 	
 	unsigned int m_getNeighbours(const Particle& particle, float searchRadius);
+	void m_stepStimulation();
 
 	void m_buildRenderBatch(unsigned int textureRes, unsigned int offset = 0);
 
