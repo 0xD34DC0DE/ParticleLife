@@ -27,7 +27,7 @@ int main()
 
 	Environment env(width, height);
 	env.setDebugDrawing(true);
-	env.setDebugFlags(DebugDrawConfig::INTERACTION_LINE | DebugDrawConfig::MAX_RADIUS);
+	env.setDebugFlags(DebugDrawConfig::INTERACTION_LINE);
 	env.setParams(-0.02f, 0.06f, 0.0f, 20.0f, 20.0f, 70.0f, 0.05f, false);
 
 	env.addRandomTypes(7);
@@ -35,9 +35,9 @@ int main()
 	env.setNeighboorSearchRadiusModeAuto(true);
 	//env.setNeighboorSearchRadius(250.0f);
 
-	env.createRandomParticles(500, 0.0f, 0.1f);
+	env.createRandomParticles(256, 0.0f, 0.1f);
 	env.setBoundaryCollisionType(SOLID);
-	env.setDebugDrawingAlpha(1);
+	env.setDebugDrawingAlpha(255);
 
 	const unsigned int updatePerFrame = 2;
 
