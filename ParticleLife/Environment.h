@@ -9,9 +9,9 @@
 
 enum BoundaryCollisionType : unsigned int
 {
-	EMPTY = 0,
-	SOLID = 1,
-	WRAP =	2,
+	EMPTY	= 0,
+	SOLID	= 1,
+	WRAP	= 2,
 };
 
 enum DebugDrawConfig : unsigned int
@@ -20,6 +20,14 @@ enum DebugDrawConfig : unsigned int
 	MIN_RADIUS			= 0x1 << 1,
 	INTERACTION_LINE	= 0x1 << 2,
 	MAX_RADIUS			= 0x1 << 3,
+};
+
+enum InteractionLineStyle : unsigned int
+{
+	SRC_COLOR			= 0,
+	SRC_DEST_MIX		= 1,
+	SRC_WHITE_MIX_DEST	= 2,
+	SRC_BLACK_MIX_DEST	= 3,
 };
 
 class Environment
@@ -39,6 +47,7 @@ public:
 	void setNeighboorSearchRadiusModeAuto(bool enabled);
 	void setParams(float attract_mean, float attract_std, float minr_lower, float minr_upper, float maxr_lower, float maxr_upper, float friction, bool flat_force);
 	void setDebugDrawingAlpha(unsigned char alpha);
+	void setDebugDrawInteractionLineStyle(InteractionLineStyle style);
 
 	void drawDebugTextureAtlas(sf::RenderTarget * renderTarget, float x, float y, float width, float height);
 
@@ -53,6 +62,7 @@ private:
 	bool m_drawDebug;
 	unsigned char m_debugDrawingAlpha;
 	unsigned int m_debugDrawConf;
+	unsigned int m_debugDrawInteractionLineStyle;
 
 	
 	unsigned int m_getNeighbours(const Particle& particle, float searchRadius);

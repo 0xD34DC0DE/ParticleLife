@@ -8,8 +8,6 @@
 //TODO : implement more complex interactions: example: limit the number of interactions per particle type, some interaction are stonger than average so they act like bonds
 // and finally some non-linear attraction formula between certain types
 
-//TODO : Check if the FPS computation is accurate (debug draw-> 100fps+, no debugDraw -> 60fps? ?nani?)
-
 //TODO : Investigate stability when density of particles in same location is high
 
 //TODO : Add a way to select a particle type and randomize its values (needs to propagate to other types too)
@@ -28,6 +26,7 @@ int main()
 	Environment env(width, height);
 	env.setDebugDrawing(true);
 	env.setDebugFlags(DebugDrawConfig::INTERACTION_LINE);
+	env.setDebugDrawInteractionLineStyle(InteractionLineStyle::SRC_DEST_MIX);
 	env.setParams(-0.02f, 0.06f, 0.0f, 20.0f, 20.0f, 70.0f, 0.05f, false);
 
 	env.addRandomTypes(7);

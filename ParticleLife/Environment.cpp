@@ -77,10 +77,34 @@ void Environment::m_stepStimulation()
 				{
 					if (m_debugDrawConf & DebugDrawConfig::INTERACTION_LINE) // Collect the interaction lines
 					{
-						sf::Color interactionLineCol = m_types.color(p.type);
-						interactionLineCol.a = m_debugDrawingAlpha;
-						m_debugInteractionLines.append(sf::Vertex(sf::Vector2f(p.x, p.y), interactionLineCol));
-						m_debugInteractionLines.append(sf::Vertex(sf::Vector2f(q.x, q.y), interactionLineCol));
+						sf::Color srcCol, destCol;
+
+						switch (m_debugDrawInteractionLineStyle)
+						{
+							case InteractionLineStyle::SRC_COLOR:
+								srcCol = m_types.color(p.type);
+								destCol = srcCol;
+								break;
+							case InteractionLineStyle::SRC_DEST_MIX:
+								srcCol = m_types.color(p.type);
+								destCol = m_types.color(q.type);
+								break;
+							case InteractionLineStyle::SRC_WHITE_MIX_DEST:
+								srcCol = sf::Color::White;
+								destCol = m_types.color(q.type);
+								break;
+							case InteractionLineStyle::SRC_BLACK_MIX_DEST:
+								srcCol = sf::Color::Black;
+								destCol = m_types.color(q.type);
+								break;
+						}
+
+
+
+						srcCol.a = m_debugDrawingAlpha;
+						destCol.a = m_debugDrawingAlpha;
+						m_debugInteractionLines.append(sf::Vertex(sf::Vector2f(p.x, p.y), srcCol));
+						m_debugInteractionLines.append(sf::Vertex(sf::Vector2f(q.x, q.y), destCol));
 					}
 				}
 
@@ -364,6 +388,11 @@ void Environment::setParams(float attract_mean, float attract_std, float minr_lo
 void Environment::setDebugDrawingAlpha(unsigned char alpha)
 {
 	m_debugDrawingAlpha = alpha;
+}
+
+void Environment::setDebugDrawInteractionLineStyle(InteractionLineStyle style)
+{
+	m_debugDrawInteractionLineStyle = style;
 }
 
 void Environment::drawDebugTextureAtlas(sf::RenderTarget * renderTarget, float x, float y, float width, float height)
