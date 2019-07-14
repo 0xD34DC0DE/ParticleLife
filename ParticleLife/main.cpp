@@ -3,6 +3,21 @@
 #include "Environment.h"
 #include "FPSCounter.h"
 
+#include "GUI.h"
+
+class GUITest : public GUI
+{
+public:
+	void update(sf::Event evnt) override final
+	{
+		printf("Key code is: %i\n", evnt.key);
+	}
+	void registerToHandler(GUIEventHandler& handler)
+	{
+		handler.registerKeyboardKeyPressEventFunction(std::bind(&GUI::update, this, std::placeholders::_1));
+	}
+};
+
 // Work based on: https://github.com/HackerPoet/Particle-Life/blob/master/Universe.cpp
 
 //TODO : implement more complex interactions: example: limit the number of interactions per particle type, some interaction are stonger than average so they act like bonds
@@ -24,7 +39,7 @@ int main()
 	window.setFramerateLimit(60);
 
 	Environment env(width, height);
-	env.setDebugDrawing(true);
+	env.setDebugDrawing(false);
 	env.setDebugFlags(DebugDrawConfig::INTERACTION_LINE);
 	env.setDebugDrawInteractionLineStyle(InteractionLineStyle::SRC_DEST_MIX);
 	env.setParams(-0.02f, 0.06f, 0.0f, 20.0f, 20.0f, 70.0f, 0.05f, false);
@@ -44,6 +59,10 @@ int main()
 
 	unsigned int tick = 0;
 
+	GUIEventHandler guiHandler;
+	GUITest guiTest;
+	guiTest.registerToHandler(guiHandler);
+
 	sf::Event evnt;
 	while (window.isOpen())
 	{
@@ -57,7 +76,10 @@ int main()
 			default:
 				break;
 			}
+			guiHandler.addEvent(evnt);
 		}
+
+		guiHandler.processEvents();
 
 		fpsCounter.start();
 
