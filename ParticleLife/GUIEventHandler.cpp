@@ -6,14 +6,14 @@ GUIEventHandler::GUIEventHandler()
 {
 }
 
-void GUIEventHandler::registerMouseClickEventFunction(std::function<void(sf::Event)> mouseFunc)
+void GUIEventHandler::registerKeyboardKeyPressCallback(sfmlEventCallback callback)
 {
-	m_mouseClickFunctions.emplace_back(mouseFunc);
+	m_registeredKeyboardFunctions.emplace_back(callback);
 }
 
-void GUIEventHandler::registerKeyboardKeyPressEventFunction(std::function<void(sf::Event)> keyboardFunc)
+void GUIEventHandler::registerMouseClickCallback(sfmlEventCallback callback)
 {
-	m_keyboardKeyPressFunctions.emplace_back(keyboardFunc);
+	m_registeredMouseFunctions.emplace_back(callback);
 }
 
 void GUIEventHandler::addEvent(sf::Event sfmlEvent)
@@ -21,42 +21,34 @@ void GUIEventHandler::addEvent(sf::Event sfmlEvent)
 	switch (sfmlEvent.type)
 	{
 	case sf::Event::EventType::KeyPressed:
-		m_keyboardKeyPressFunctions.emplace_back(sfmlEvent);
+	case sf::Event::EventType::KeyReleased:
+		m_keyEvents.emplace_back(sfmlEvent);
 		break;
-	case sf::Event::EventType::MouseMoved:
-		m_mouseClickEvents.emplace_back(sfmlEvent);
-		break;
+		//TODO : implement a custom event for "complete" mouse clicks (press + release) (maybe just release is the right approach)
 	case sf::Event::EventType::MouseButtonPressed:
-		m_mouseClickEvents.emplace_back(sfmlEvent);
-		break;
 	case sf::Event::EventType::MouseButtonReleased:
-		m_mouseClickEvents.emplace_back(sfmlEvent);
+		m_mouseEvents.emplace_back(sfmlEvent);
 		break;
 	}
+	
 }
 
 unsigned int GUIEventHandler::processEvents()
 {
-	unsigned int processedEventsCount;
+	unsigned int processedEventsCount = 0;
 
-	//TODO : make it so std::function are not void and use boolean(when they accept the event (exemple: it is within bounds of an registered GUI element))
+	for (auto& evnt : m_keyEvents)
+		for (auto& cb : m_registeredKeyboardFunctions)
+			if(cb(evnt))
+				processedEventsCount++;
 
-	for (auto &keyboardEvent : m_keyboardKeyPressEvents)
-		for (auto &keyboardCallback : m_keyboardKeyPressFunctions)
-		{
-			keyboardCallback(keyboardEvent);
-			processedEventsCount++;
-		}
+	for (auto& evnt : m_mouseEvents)
+		for (auto& cb : m_registeredMouseFunctions)
+			if (cb(evnt))
+				processedEventsCount++;
 
-	for (auto &mouseEvent : m_mouseClickEvents)
-		for (auto &mouseCallback : m_mouseClickFunctions)
-		{
-			mouseCallback(mouseEvent);
-			processedEventsCount++;
-		}
-
-	m_keyboardKeyPressEvents.clear();
-	m_mouseClickEvents.clear();
+	m_keyEvents.clear();
+	m_mouseEvents.clear();
 
 	return processedEventsCount;
 }

@@ -3,31 +3,31 @@
 #include <vector>
 #include <SFML/Graphics.hpp>
 
-//TODO : investigate how to make that work
-/*
-typedef std::function<void(sf::Event::MouseButtonEvent)> MouseClickFunction;
-typedef std::function<void(sf::Event::KeyEvent)> KeyboardKeyPressFunction;
-*/
-typedef std::function<std::function<void(sf::Event)>> MouseClickFunction;
-typedef std::function<std::function<void(sf::Event)>> KeyboardKeyPressFunction;
+typedef std::function<bool(sf::Event)> sfmlEventCallback;
+
+// GUIEventHandler stores events in separate vectors depending on the type of the event called
+// this is so we can make a virtual function that accepts sfml's event to be flexible but registers only to the type of events it needs
+// so we don't send a mouseEvent to a function that expect a keyEvent since both of the events are of type sf::Event
 
 class GUIEventHandler
 {
 public:
 	GUIEventHandler();
-
-	void registerMouseClickEventFunction(std::function<void(sf::Event)> mouseFunc);
-	void registerKeyboardKeyPressEventFunction(std::function<void(sf::Event)> keyboardFunc);
+	
+	void registerKeyboardKeyPressCallback(sfmlEventCallback callback);
+	void registerMouseClickCallback(sfmlEventCallback callback);
 
 	void addEvent(sf::Event sfmlEvent);
 
 	//return number of processed events
 	unsigned int processEvents();
 private:
-	std::vector<std::function<void(sf::Event)>> m_mouseClickFunctions;
-	std::vector<std::function<void(sf::Event)>> m_keyboardKeyPressFunctions;
 
-	std::vector<sf::Event> m_mouseClickEvents;
-	std::vector<sf::Event> m_keyboardKeyPressEvents;
+	std::vector<sf::Event> m_keyEvents;
+	std::vector<sf::Event> m_mouseEvents;
+
+	std::vector<sfmlEventCallback> m_registeredKeyboardFunctions;
+	std::vector<sfmlEventCallback> m_registeredMouseFunctions;
+
 };
 

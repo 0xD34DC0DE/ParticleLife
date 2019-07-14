@@ -2,12 +2,18 @@
 #include <SFML/Graphics.hpp>
 #include "GUIEventHandler.h"
 
+enum EventType
+{
+	MOUSE_CLICK			= 0,
+	KEYBOARD_KEYPRESS	= 1,
+};
+
 class GUI
 {
 public:
 	GUI();
 
-	virtual void update(sf::Event) = 0;
-	virtual void registerToHandler(GUIEventHandler& handler) = 0;
+	virtual bool update(sf::Event) = 0;
+	void registerToHandler(GUIEventHandler& handler, EventType eventType);
 };
 

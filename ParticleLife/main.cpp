@@ -5,16 +5,23 @@
 
 #include "GUI.h"
 
-class GUITest : public GUI
+class GUIKeyTest : public GUI
 {
 public:
-	void update(sf::Event evnt) override final
+	bool update(sf::Event evnt) override final
 	{
-		printf("Key code is: %i\n", evnt.key);
+		printf("Key code is: %i\n", evnt.key.code);
+		return true;
 	}
-	void registerToHandler(GUIEventHandler& handler)
+};
+
+class GUIMouseTest : public GUI
+{
+public:
+	bool update(sf::Event evnt) override final
 	{
-		handler.registerKeyboardKeyPressEventFunction(std::bind(&GUI::update, this, std::placeholders::_1));
+		printf("Mouse button code is: %i at %i,%i\n", evnt.mouseButton.button, evnt.mouseButton.x, evnt.mouseButton.y);
+		return true;
 	}
 };
 
@@ -60,8 +67,12 @@ int main()
 	unsigned int tick = 0;
 
 	GUIEventHandler guiHandler;
-	GUITest guiTest;
-	guiTest.registerToHandler(guiHandler);
+
+	GUIKeyTest guiKeyTest;
+	guiKeyTest.registerToHandler(guiHandler, EventType::KEYBOARD_KEYPRESS);
+
+	GUIMouseTest guiMouseTest;
+	guiMouseTest.registerToHandler(guiHandler, EventType::MOUSE_CLICK);
 
 	sf::Event evnt;
 	while (window.isOpen())
@@ -79,7 +90,9 @@ int main()
 			guiHandler.addEvent(evnt);
 		}
 
-		guiHandler.processEvents();
+		int processedEventCount = guiHandler.processEvents();
+		if (processedEventCount != 0)
+			printf("Events processed at frame %i: %i\n", tick, processedEventCount);
 
 		fpsCounter.start();
 
