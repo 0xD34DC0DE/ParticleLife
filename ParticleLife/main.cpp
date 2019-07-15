@@ -2,28 +2,7 @@
 
 #include "Environment.h"
 #include "FPSCounter.h"
-
-#include "GUI.h"
-
-class GUIKeyTest : public GUI
-{
-public:
-	bool update(sf::Event evnt) override final
-	{
-		printf("Key code is: %i\n", evnt.key.code);
-		return true;
-	}
-};
-
-class GUIMouseTest : public GUI
-{
-public:
-	bool update(sf::Event evnt) override final
-	{
-		printf("Mouse button code is: %i at %i,%i\n", evnt.mouseButton.button, evnt.mouseButton.x, evnt.mouseButton.y);
-		return true;
-	}
-};
+#include "GUIParticleSelector.h"
 
 // Work based on: https://github.com/HackerPoet/Particle-Life/blob/master/Universe.cpp
 
@@ -67,12 +46,9 @@ int main()
 	unsigned int tick = 0;
 
 	GUIEventHandler guiHandler;
-
-	GUIKeyTest guiKeyTest;
-	guiKeyTest.registerToHandler(guiHandler, EventType::KEYBOARD_KEYPRESS);
-
-	GUIMouseTest guiMouseTest;
-	guiMouseTest.registerToHandler(guiHandler, EventType::MOUSE_CLICK);
+	
+	GUIParticleSelector guiParticleSelector(env.getParticleRadius(), 32, env.getParticleVectorPtr());
+	guiParticleSelector.registerToHandler(guiHandler);
 
 	sf::Event evnt;
 	while (window.isOpen())

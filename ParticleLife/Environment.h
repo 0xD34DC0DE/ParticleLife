@@ -51,6 +51,9 @@ public:
 
 	void drawDebugTextureAtlas(sf::RenderTarget * renderTarget, float x, float y, float width, float height);
 
+	float getParticleRadius();
+	std::vector<Particle>* getParticleVectorPtr();
+
 private:
 	sf::Color m_randomColor();
 	std::uniform_int_distribution<unsigned int> m_randByte;
@@ -88,6 +91,7 @@ private:
 	std::size_t m_lastNeighboorScanCount;
 	ParticleTypes m_types;
 
+	float m_particleRadius;
 	bool m_useFlatForce;
 	float m_friction;
 	float m_attract_mean;
@@ -98,6 +102,7 @@ private:
 	float m_maxr_upper;
 	float m_neighboorSearchRadius;
 	bool m_autoSearchNeighboorRadius;
+	
 
 
 	std::vector<std::pair<float, float>> m_debugDrawingRadii;

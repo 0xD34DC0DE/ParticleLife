@@ -4,16 +4,16 @@
 
 enum EventType
 {
-	MOUSE_CLICK			= 0,
-	KEYBOARD_KEYPRESS	= 1,
+	MOUSE_CLICK,
+	KEYBOARD_KEYPRESS,
 };
 
+template <EventType eventType>
 class GUI
 {
 public:
-	GUI();
-
 	virtual bool update(sf::Event) = 0;
-	void registerToHandler(GUIEventHandler& handler, EventType eventType);
+	virtual void draw(sf::RenderTarget* renderTarget) {}; // default implementation needs to be in the header file since this is a template class
+	void registerToHandler(GUIEventHandler& handler);
 };
 

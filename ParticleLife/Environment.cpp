@@ -33,6 +33,7 @@ Environment::Environment(unsigned int width, unsigned int height)
 	m_debugDrawingAlpha = 255;
 	m_debugMinRBatchRendererInitialized = false;
 	m_debugMaxRBatchRendererInitialized = false;
+	m_particleRadius = RADIUS;
 }
 
 sf::Color Environment::m_randomColor()
@@ -398,6 +399,16 @@ void Environment::setDebugDrawInteractionLineStyle(InteractionLineStyle style)
 void Environment::drawDebugTextureAtlas(sf::RenderTarget * renderTarget, float x, float y, float width, float height)
 {
 	m_particleBatchRenderer.drawAtlas(renderTarget, x, y, width, height);
+}
+
+float Environment::getParticleRadius()
+{
+	return m_particleRadius;
+}
+
+std::vector<Particle>* Environment::getParticleVectorPtr()
+{
+	return &m_particles;
 }
 
 unsigned int Environment::m_getNeighbours(const Particle& particle, float searchRadius)

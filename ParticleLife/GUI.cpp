@@ -1,18 +1,17 @@
 #include "GUI.h"
 
-GUI::GUI()
+//template<EventType eventType>
+//void GUI<eventType>::draw(sf::RenderTarget* renderTarget)
+//{}
+
+template<>
+void GUI<EventType::KEYBOARD_KEYPRESS>::registerToHandler(GUIEventHandler& handler)
 {
+	handler.registerKeyboardKeyPressCallback(std::bind(&GUI::update, this, std::placeholders::_1));
 }
 
-void GUI::registerToHandler(GUIEventHandler & handler, EventType eventType)
+template<>
+void GUI<EventType::MOUSE_CLICK>::registerToHandler(GUIEventHandler& handler)
 {
-	switch (eventType)
-	{
-	case EventType::KEYBOARD_KEYPRESS:
-		handler.registerKeyboardKeyPressCallback(std::bind(&GUI::update, this, std::placeholders::_1));
-		break;
-	case EventType::MOUSE_CLICK:
-		handler.registerMouseClickCallback(std::bind(&GUI::update, this, std::placeholders::_1));
-		break;
-	}
+	handler.registerMouseClickCallback(std::bind(&GUI::update, this, std::placeholders::_1));
 }
