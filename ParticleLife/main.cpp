@@ -17,6 +17,8 @@
 
 //TODO : Make TEXTURE_RES arguments use a resolution relative to the resolution  of the window
 
+//TODO : Make a registering function for the GUIHandler class for automatic drawing
+
 int main()
 {
 	const unsigned int width = 1024;
@@ -77,6 +79,8 @@ int main()
 		env.update(updatePerFrame);
 
 		env.draw(&window);
+
+		guiParticleSelector.draw(&window);
 		
 		fpsCounter.draw(&window);
 

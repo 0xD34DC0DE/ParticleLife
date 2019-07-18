@@ -1,6 +1,7 @@
 #pragma once
 #include "GUI.h"
 #include "Particle.h"
+#include "BatchRenderer2D.h"
 
 class GUIParticleSelector : public GUI<EventType::MOUSE_CLICK>
 {
@@ -17,8 +18,12 @@ private:
 	float m_maxSelectDist;
 
 	bool m_particleSelected;
+	float m_select_x, m_select_y;
 
 	//return nullptr if no particle got selected
 	Particle* m_getSelectedParticle(unsigned int x, unsigned int y);
+	Particle* m_selectedParticlePtr;
+
+	BatchRenderer2D m_batchRenderer;
 };
 
