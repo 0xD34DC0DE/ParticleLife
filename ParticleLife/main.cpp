@@ -49,7 +49,7 @@ int main()
 
 	GUIEventHandler guiHandler;
 	
-	GUIParticleSelector guiParticleSelector(env.getParticleRadius(), 32, env.getParticleVectorPtr());
+	GUIParticleSelector guiParticleSelector(env.getParticleRadius(), 5.0f, 15.0f, 32, env.getParticleVectorPtr());
 	guiParticleSelector.registerToHandler(guiHandler);
 
 	sf::Event evnt;

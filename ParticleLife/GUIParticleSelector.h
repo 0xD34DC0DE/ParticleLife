@@ -3,18 +3,21 @@
 #include "Particle.h"
 #include "BatchRenderer2D.h"
 
-class GUIParticleSelector : public GUI<EventType::MOUSE_CLICK>
+class GUIParticleSelector : public GUI<static_cast<EventType>(EventType::MOUSE_CLICK | EventType::MOUSE_MOVE)>
 {
 public:
-	GUIParticleSelector(float radius, unsigned int textureRes, std::vector<Particle>* particleVectorPtr, sf::Color highlighColor = sf::Color::Yellow);
+	GUIParticleSelector(float radius, float tolerance, float backgroundHighlight, unsigned int textureRes, std::vector<Particle>* particleVectorPtr, sf::Color highlighColor = sf::Color::Yellow, sf::Color backCircleColor = sf::Color(0xFF,0xFF,0xFF,0x80));
 	void draw(sf::RenderTarget* renderTarget) override final;
-	bool update(sf::Event evnt) override final;
+	bool update(sf::Event evnt, CustomData* data) override final;
 	void setParticleVectorPtr(std::vector<Particle>* particleVectorPtr);
 private:
 	std::vector<Particle>* m_particleVectorPtr;
 	float m_radius;
+	float m_tolerance;
+	float m_backgroundHighlightRadius;
 	unsigned int m_distSquared;
-	unsigned int textureRes;
+	unsigned int m_textureRes;
+	unsigned int m_toleranceDistSquared;
 	float m_maxSelectDist;
 
 	bool m_particleSelected;
@@ -25,5 +28,7 @@ private:
 	Particle* m_selectedParticlePtr;
 
 	BatchRenderer2D m_batchRenderer;
+	unsigned int m_selectedTextureID;
+	unsigned int m_preSelectTextureID;
 };
 

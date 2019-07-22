@@ -1,7 +1,7 @@
 #include "Environment.h"
 #include <cassert>
 
-#define RADIUS 10.0f
+#define RADIUS 5.0f
 #define DIAMETER 2.0f * RADIUS
 #define R_SMOOTH 2.0f
 
