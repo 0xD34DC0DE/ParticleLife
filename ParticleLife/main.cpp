@@ -19,15 +19,18 @@
 
 //TODO : Make a registering function for the GUIHandler class for automatic drawing
 
+//TODO : Allow non squarred matrix attaraction forces(lets certain particle not attract/repusle each other but they still collide)
+
+//TODO : Add size and mass
 int main()
 {
-	const unsigned int width = 1024;
-	const unsigned int height = 1024;
+	const unsigned int width = 720;
+	const unsigned int height = 480;
 	sf::RenderWindow window(sf::VideoMode(width, height), "Particle Life");
 	window.setFramerateLimit(60);
 
 	Environment env(width, height);
-	env.setDebugDrawing(false);
+	env.setDebugDrawing(true);
 	env.setDebugFlags(DebugDrawConfig::INTERACTION_LINE);
 	env.setDebugDrawInteractionLineStyle(InteractionLineStyle::SRC_DEST_MIX);
 	env.setParams(-0.02f, 0.06f, 0.0f, 20.0f, 20.0f, 70.0f, 0.05f, false);
@@ -39,7 +42,7 @@ int main()
 
 	env.createRandomParticles(256, 0.0f, 0.1f);
 	env.setBoundaryCollisionType(SOLID);
-	env.setDebugDrawingAlpha(255);
+	env.setDebugDrawingAlpha(20);
 
 	const unsigned int updatePerFrame = 2;
 
@@ -49,7 +52,7 @@ int main()
 
 	GUIEventHandler guiHandler;
 	
-	GUIParticleSelector guiParticleSelector(env.getParticleRadius(), 5.0f, 15.0f, 32, env.getParticleVectorPtr());
+	GUIParticleSelector guiParticleSelector(env.getSize(), window.getSize(), env.getParticleRadius(), 5.0f, 15.0f, 32, env.getParticleVectorPtr());
 	guiParticleSelector.registerToHandler(guiHandler);
 
 	sf::Event evnt;

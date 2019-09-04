@@ -3,14 +3,17 @@
 #include "Particle.h"
 #include "BatchRenderer2D.h"
 
-class GUIParticleSelector : public GUI<static_cast<EventType>(EventType::MOUSE_CLICK | EventType::MOUSE_MOVE)>
+class GUIParticleSelector : public GUI<static_cast<EventType>(EventType::MOUSE_CLICK | EventType::MOUSE_MOVE | EventType::WINDOW_RESIZE)>
 {
 public:
-	GUIParticleSelector(float radius, float tolerance, float backgroundHighlight, unsigned int textureRes, std::vector<Particle>* particleVectorPtr, sf::Color highlighColor = sf::Color::Yellow, sf::Color backCircleColor = sf::Color(0xFF,0xFF,0xFF,0x80));
+	GUIParticleSelector(sf::Vector2u environmentSize, sf::Vector2u windowSize, float radius, float tolerance, float backgroundHighlight, unsigned int textureRes, std::vector<Particle>* particleVectorPtr, sf::Color highlighColor = sf::Color::Yellow, sf::Color backCircleColor = sf::Color(0xFF,0xFF,0xFF,0x80));
 	void draw(sf::RenderTarget* renderTarget) override final;
 	bool update(sf::Event evnt, CustomData* data) override final;
 	void setParticleVectorPtr(std::vector<Particle>* particleVectorPtr);
+	void setWindowSize(sf::Vector2u windowSize);
 private:
+	sf::Vector2f m_enviromentSize;
+	sf::Vector2f m_windowSize;
 	std::vector<Particle>* m_particleVectorPtr;
 	float m_radius;
 	float m_tolerance;

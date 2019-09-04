@@ -28,6 +28,11 @@ void GUIEventHandler::registerMouseMoveCallback(sfmlEventCallback callback)
 	m_registeredMouseMoveFunctions.emplace_back(callback);
 }
 
+void GUIEventHandler::registerWindowResizeCallback(sfmlEventCallback callback)
+{
+	m_registeredWindowResizeFunctions.emplace_back(callback);
+}
+
 void GUIEventHandler::addEvent(sf::Event sfmlEvent, CustomData* data)
 {
 	switch (sfmlEvent.type)
@@ -43,6 +48,9 @@ void GUIEventHandler::addEvent(sf::Event sfmlEvent, CustomData* data)
 		break;
 	case sf::Event::EventType::MouseMoved:
 			m_mouseMoveEvents.emplace_back(sfmlEvent);
+		break;
+	case sf::Event::Resized:
+		m_windowResizeEvents.emplace_back(sfmlEvent);
 		break;
 	}
 	
@@ -67,13 +75,18 @@ unsigned int GUIEventHandler::processEvents()
 			if (cb(evnt, nullptr))
 				processedEventsCount++;
 
+	for (auto& evnt : m_windowResizeEvents)
+		for (auto& cb : m_registeredWindowResizeFunctions)
+			if (cb(evnt, nullptr))
+				processedEventsCount++;
+
 	m_keyEvents.clear();
 	m_mouseClickEvents.clear();
 	m_mouseMoveEvents.clear();
+	m_windowResizeEvents.clear();
 
 	m_clearCustomData();
 	
-
 	return processedEventsCount;
 }
 

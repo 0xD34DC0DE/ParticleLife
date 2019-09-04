@@ -1,11 +1,12 @@
 #include "GUIParticleSelector.h"
 
-//TODO : implement selection distance tolerance
-//TODO : implement semi-transparent background circle
 //TODO : implement contrasting color circle
 //TODO : implement option to change background color and outline color when selected
-GUIParticleSelector::GUIParticleSelector(float radius, float tolerance, float backgroundHighlight, unsigned int textureRes, std::vector<Particle>* particleVectorPtr, sf::Color highlighColor, sf::Color backCircleColor)
+//TODO : implement separate scaling function
+GUIParticleSelector::GUIParticleSelector(sf::Vector2u environmentSize, sf::Vector2u windowSize, float radius, float tolerance, float backgroundHighlight, unsigned int textureRes, std::vector<Particle>* particleVectorPtr, sf::Color highlighColor, sf::Color backCircleColor)
 {
+	m_enviromentSize = sf::Vector2f(environmentSize);
+	m_windowSize = sf::Vector2f(windowSize);
 	m_particleVectorPtr = particleVectorPtr;
 	m_radius = radius;
 	m_distSquared = static_cast<unsigned int>(radius * radius);
@@ -57,7 +58,10 @@ bool GUIParticleSelector::update(sf::Event evnt, CustomData* data)
 {
 	if (evnt.type == sf::Event::EventType::MouseButtonReleased && evnt.mouseButton.button == sf::Mouse::Button::Left)
 	{
-		Particle* closestParticle = m_getSelectedParticle(evnt.mouseButton.x, evnt.mouseButton.y); // will be nullptr if no particle is got selected
+		unsigned int scaledX = (m_enviromentSize.x / m_windowSize.x) * (evnt.mouseButton.x);
+		unsigned int scaledY = (m_enviromentSize.y / m_windowSize.y) * (evnt.mouseButton.y);
+
+		Particle* closestParticle = m_getSelectedParticle(scaledX, scaledY); // will be nullptr if no particle is got selected
 		if (closestParticle != nullptr)
 		{
 			m_particleSelected = true;
@@ -76,12 +80,18 @@ bool GUIParticleSelector::update(sf::Event evnt, CustomData* data)
 	}
 	else if (evnt.type == sf::Event::EventType::MouseMoved)
 	{
+		unsigned int scaledX = (m_enviromentSize.x / m_windowSize.x) * (evnt.mouseMove.x);
+		unsigned int scaledY = (m_enviromentSize.y / m_windowSize.y) * (evnt.mouseMove.y);
 		// Do not search for a nearby particle if m_particleSelect is true since we are already tracking one
 		if (m_particleSelected != true)
 		{
 			//Its okay to directly assign the return value since a nullptr means there is no nearby particle and this will mean we skip the drawing
-			m_selectedParticlePtr = m_getSelectedParticle(evnt.mouseMove.x, evnt.mouseMove.y);
+			m_selectedParticlePtr = m_getSelectedParticle(scaledX, scaledY);
 		}
+	}
+	else if (evnt.type == sf::Event::EventType::Resized)
+	{
+		m_windowSize = sf::Vector2f(evnt.size.width, evnt.size.height);
 	}
 	return false;
 }
@@ -89,6 +99,11 @@ bool GUIParticleSelector::update(sf::Event evnt, CustomData* data)
 void GUIParticleSelector::setParticleVectorPtr(std::vector<Particle>* particleVectorPtr)
 {
 	m_particleVectorPtr = particleVectorPtr;
+}
+
+void GUIParticleSelector::setWindowSize(sf::Vector2u windowSize)
+{
+	m_windowSize = sf::Vector2f(windowSize);
 }
 
 Particle* GUIParticleSelector::m_getSelectedParticle(unsigned int mouseX, unsigned int mouseY)

@@ -4,9 +4,10 @@
 
 enum EventType
 {
-	MOUSE_CLICK,
-	KEYBOARD_KEYPRESS,
-	MOUSE_MOVE,
+	MOUSE_CLICK			= 1 << 0,
+	KEYBOARD_KEYPRESS	= 1 << 1,
+	MOUSE_MOVE			= 1 << 2,
+	WINDOW_RESIZE		= 1 << 3,
 };
 
 template <EventType eventType>

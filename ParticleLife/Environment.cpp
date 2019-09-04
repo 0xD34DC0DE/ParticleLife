@@ -406,6 +406,11 @@ float Environment::getParticleRadius()
 	return m_particleRadius;
 }
 
+sf::Vector2u Environment::getSize()
+{
+	return sf::Vector2u(static_cast<unsigned int>(std::roundf(m_width)), static_cast<unsigned int>(std::roundf(m_height)));
+}
+
 std::vector<Particle>* Environment::getParticleVectorPtr()
 {
 	return &m_particles;

@@ -17,7 +17,7 @@ typedef std::function<bool(sf::Event, CustomData*)> sfmlEventCallback;
 // GUIEventHandler stores events in separate vectors depending on the type of the event called
 // this is so we can make a virtual function that accepts sfml's event to be flexible but registers only to the type of events it needs
 // so we don't send a mouseEvent to a function that expect a keyEvent since both of the events are of type sf::Event
-
+//TODO : Find better way to do that
 class GUIEventHandler
 {
 public:
@@ -27,6 +27,7 @@ public:
 	void registerKeyboardKeyPressCallback(sfmlEventCallback callback);
 	void registerMouseClickCallback(sfmlEventCallback callback);
 	void registerMouseMoveCallback(sfmlEventCallback callback);
+	void registerWindowResizeCallback(sfmlEventCallback callback);
 
 	// the data will be copied into a customData struct to prevent dangling pointers
 	void addEvent(sf::Event sfmlEvent, CustomData* data = nullptr);
@@ -41,10 +42,12 @@ private:
 	std::vector<sf::Event> m_keyEvents;
 	std::vector<sf::Event> m_mouseClickEvents;
 	std::vector<sf::Event> m_mouseMoveEvents;
+	std::vector<sf::Event> m_windowResizeEvents;
 
 	std::vector<sfmlEventCallback> m_registeredKeyboardFunctions;
 	std::vector<sfmlEventCallback> m_registeredMouseClickFunctions;
 	std::vector<sfmlEventCallback> m_registeredMouseMoveFunctions;
+	std::vector<sfmlEventCallback> m_registeredWindowResizeFunctions;
 
 	unsigned int m_activeCustomData;
 	unsigned int m_customDataCount;

@@ -52,6 +52,7 @@ public:
 	void drawDebugTextureAtlas(sf::RenderTarget * renderTarget, float x, float y, float width, float height);
 
 	float getParticleRadius();
+	sf::Vector2u getSize();
 	std::vector<Particle>* getParticleVectorPtr();
 
 private:
