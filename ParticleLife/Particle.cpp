@@ -151,6 +151,41 @@ void ParticleTypes::addRandomTypes(std::size_t typeCount)
 	}
 }
 
+void ParticleTypes::randomize()
+{
+	std::uniform_real_distribution<float> randNormalized(0.0f, 1.0f);
+	std::normal_distribution<float>       rand_attr(m_attract_mean, m_attract_std);
+	std::uniform_real_distribution<float> rand_minr(m_minr_lower, m_minr_upper);
+	std::uniform_real_distribution<float> rand_maxr(m_maxr_lower, m_maxr_upper);
+
+	std::fill(m_minRad.begin(), m_minRad.end(), 0);
+	std::fill(m_maxRad.begin(), m_maxRad.end(), 0);
+	std::fill(m_attractForce.begin(), m_attractForce.end(), 0);
+
+	for (int i = 0; i < m_typeCount; i++)
+	{
+		for (int j = 0; j < m_typeCount; j++)
+		{
+			if (i == j)
+			{
+				m_attractForce[i * m_typeCount + j] = -std::abs(rand_attr(m_gen));
+				m_minRad[i * m_typeCount + j] = DIAMETER;
+			}
+			else
+			{
+				m_attractForce[i * m_typeCount + j] = rand_attr(m_gen);
+				m_minRad[i * m_typeCount + j] = std::max(rand_minr(m_gen), DIAMETER);
+			}
+
+			m_maxRad[i * m_typeCount + j] = std::max(rand_maxr(m_gen), m_minRad[i * m_typeCount + j]);
+
+			// Radii symmetry
+			m_maxRad[j * m_typeCount + i] = m_maxRad[i * m_typeCount + j];
+			m_minRad[j * m_typeCount + i] = m_minRad[i * m_typeCount + j];
+		}
+	}
+}
+
 float ParticleTypes::minRadius(std::size_t typeA, std::size_t typeB)
 {
 	return m_minRad[typeA * m_typeCount + typeB];

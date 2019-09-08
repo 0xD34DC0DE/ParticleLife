@@ -12,6 +12,7 @@ enum BoundaryCollisionType : unsigned int
 	EMPTY	= 0,
 	SOLID	= 1,
 	WRAP	= 2,
+	REPUSLE = 3,
 };
 
 enum DebugDrawConfig : unsigned int
@@ -36,6 +37,7 @@ public:
 	Environment(unsigned int width, unsigned int height);
 	void update(unsigned int stepCount = 1);
 	void draw(sf::RenderWindow* window);
+	void reset();
 	void createRandomParticles(std::size_t particleCount, float velMean, float velStd);
 	void addRandomTypes(std::size_t typeCount);
 	void setBoundaryCollisionType(BoundaryCollisionType bndColTy);
@@ -82,6 +84,7 @@ private:
 	void m_updateDebugMinRRenderBatchPos();
 	void m_updateDebugMaxRRenderBatchPos();
 
+	sf::Vector2f normalizeCoordinate(float x, float y);
 
 
 	BoundaryCollisionType m_bndColTy;

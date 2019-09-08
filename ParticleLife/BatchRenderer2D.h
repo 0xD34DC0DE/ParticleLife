@@ -10,10 +10,12 @@ public:
 
 	unsigned int addTexture(const sf::CircleShape& circleShape, unsigned int textureSize, sf::Color backgroundColor = sf::Color::Transparent);
 	unsigned int addTexture(const sf::Texture& texture);
+	void modifyTexture(const sf::CircleShape& circleShape, unsigned int textureIndex, sf::Color backgroundColor = sf::Color::Transparent);
 
 	unsigned int addSprite(float x, float y, float quadSize, int textureIndex = -1);
 
 	void draw(sf::RenderTarget* renderTarget);
+
 
 	void drawAtlas(sf::RenderTarget * renderTarget, float x, float y, float width, float height);
 

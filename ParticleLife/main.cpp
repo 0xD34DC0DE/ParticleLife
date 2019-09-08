@@ -3,6 +3,7 @@
 #include "Environment.h"
 #include "FPSCounter.h"
 #include "GUIParticleSelector.h"
+#include "KeyboardMapper.h"
 
 // Work based on: https://github.com/HackerPoet/Particle-Life/blob/master/Universe.cpp
 
@@ -54,6 +55,10 @@ int main()
 	
 	GUIParticleSelector guiParticleSelector(env.getSize(), window.getSize(), env.getParticleRadius(), 5.0f, 15.0f, 32, env.getParticleVectorPtr());
 	guiParticleSelector.registerToHandler(guiHandler);
+
+	KeyboardMapper keyMapper;
+	keyMapper.registerToHandler(guiHandler);
+	keyMapper.mapKeyToFunction(sf::Keyboard::R, sf::Event::KeyReleased, std::bind(&Environment::reset, &env));
 
 	sf::Event evnt;
 	while (window.isOpen())

@@ -21,7 +21,8 @@ public:
 	const sf::Color& color(std::size_t i) const { return m_color[i]; }
 
 	void addRandomTypes(std::size_t typeCount);
-
+	void randomize();
+	 
 	float minRadius(std::size_t typeA, std::size_t typeB);
 	float maxRadius(std::size_t typeA, std::size_t typeB);
 	float attractForce(std::size_t typeA, std::size_t typeB);

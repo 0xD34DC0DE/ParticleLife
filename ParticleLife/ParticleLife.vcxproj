@@ -121,6 +121,7 @@
     <ClCompile Include="GUI.cpp" />
     <ClCompile Include="GUIEventHandler.cpp" />
     <ClCompile Include="GUIParticleSelector.cpp" />
+    <ClCompile Include="KeyboardMapper.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="OldGravSim.cpp" />
     <ClCompile Include="Particle.cpp" />
@@ -133,6 +134,7 @@
     <ClInclude Include="GUI.h" />
     <ClInclude Include="GUIEventHandler.h" />
     <ClInclude Include="GUIParticleSelector.h" />
+    <ClInclude Include="KeyboardMapper.h" />
     <ClInclude Include="Particle.h" />
     <ClInclude Include="TextureRenderer.h" />
   </ItemGroup>

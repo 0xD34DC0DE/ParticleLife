@@ -175,6 +175,14 @@ void Environment::m_stepStimulation()
 			if (p.x > m_boundWidth) { p.x = -r; }
 			if (p.y > m_boundHeight) { p.y = -r; }
 			break;
+		case BoundaryCollisionType::REPUSLE:
+			sf::Vector2f normalized(normalizeCoordinate(p.x, p.y));
+			normalized -= sf::Vector2f(0.5f, 0.5f);
+			sf::Vector2f repulsion;
+			repulsion.x = std::max(-std::logf(std::powf(std::abs(normalized.x), 0.5f)), 0.0f);
+			repulsion.y = std::max(-std::logf(std::powf(std::abs(normalized.y), 0.5f)), 0.0f);
+			p.vx 
+			break;
 		}
 	}
 
@@ -194,6 +202,19 @@ void Environment::draw(sf::RenderWindow * window)
 	{
 		m_debugDraw(window);
 	}
+}
+
+void Environment::reset()
+{
+	unsigned int typeCount = m_types.getTypeCount();
+	sf::CircleShape shape;
+	for (unsigned int i = 0; i < typeCount; i++)
+	{
+		shape.setFillColor(m_randomColor());
+		m_particleBatchRenderer.modifyTexture(shape, i);
+	}
+
+	m_types.randomize();
 }
 
 void Environment::m_debugDraw(sf::RenderWindow * window)
@@ -235,7 +256,7 @@ void Environment::createRandomParticles(std::size_t particleCount, float velMean
 
 	int maxColorIndex = static_cast<int>(m_types.size()) - 1;
 
-#ifdef DEBUG
+#ifdef _DEBUG
 	assert(maxColorIndex > -1); // If you trigger the assertion evaluation make sure you created types before creating particles
 #endif // DEBUG
 
@@ -321,6 +342,11 @@ void Environment::setBoundaryCollisionType(BoundaryCollisionType bndColTy)
 		// when the balls are offscreen
 		m_boundWidth = m_width + static_cast<float>(RADIUS);
 		m_boundHeight = m_height + static_cast<float>(RADIUS);
+		break;
+	case BoundaryCollisionType::REPUSLE:
+		// Bounds are the same size as the environment size since the repulsion is gradual from the edges
+		m_boundWidth = m_width;
+		m_boundHeight = m_height;
 		break;
 	}
 }
@@ -543,4 +569,9 @@ void Environment::m_updateDebugMaxRRenderBatchPos()
 	{
 		m_maxRadiusBatchRenderer.setPos(i, m_particles[i].x, m_particles[i].y);
 	}
+}
+
+sf::Vector2f Environment::normalizeCoordinate(float x, float y)
+{
+	return sf::Vector2f(x / m_width, y / m_height);
 }

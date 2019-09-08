@@ -55,6 +55,15 @@ unsigned int BatchRenderer2D::addTexture(const sf::Texture & texture)
 	return m_textureCount - 1;
 }
 
+void BatchRenderer2D::modifyTexture(const sf::CircleShape& circleShape, unsigned int textureIndex, sf::Color backgroundColor)
+{
+	sf::Texture tex;
+	unsigned int texSize = m_textureSizes[textureIndex];
+	tex.create(texSize, texSize);
+	tex.loadFromImage(TextureRenderer::renderToTexture(circleShape, texSize, backgroundColor));
+	m_textureAtlas.update(tex, m_texturesUVOffsets[textureIndex], 0);
+}
+
 unsigned int BatchRenderer2D::addSprite(float x, float y, float quadSize, int textureIndex)
 {
 	m_spriteCount++;
