@@ -42,7 +42,7 @@ int main()
 	//env.setNeighboorSearchRadius(250.0f);
 
 	env.createRandomParticles(256, 0.0f, 0.1f);
-	env.setBoundaryCollisionType(SOLID);
+	env.setBoundaryCollisionType(REPUSLE);
 	env.setDebugDrawingAlpha(20);
 
 	const unsigned int updatePerFrame = 2;

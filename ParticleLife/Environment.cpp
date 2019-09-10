@@ -179,9 +179,10 @@ void Environment::m_stepStimulation()
 			sf::Vector2f normalized(normalizeCoordinate(p.x, p.y));
 			normalized -= sf::Vector2f(0.5f, 0.5f);
 			sf::Vector2f repulsion;
-			repulsion.x = std::max(-std::logf(std::powf(std::abs(normalized.x), 0.5f)), 0.0f);
-			repulsion.y = std::max(-std::logf(std::powf(std::abs(normalized.y), 0.5f)), 0.0f);
-			p.vx 
+			repulsion.x = normalized.x * normalized.x * normalized.x;
+			repulsion.y = normalized.y * normalized.y * normalized.y;
+			p.vx -= repulsion.x * 0.25f;
+			p.vy -= repulsion.y * 0.25f;
 			break;
 		}
 	}
